@@ -18,51 +18,52 @@ prácticas.
 
 ---
 
-## Estructura de proyectos prácticos
+## Estructura del repositorio
 
-Este repositorio contiene **dos proyectos paralelos** que se desarrollan durante el semestre.
-Ambos implementan el mismo sistema (gestión de estudiantes y cursos) para que los alumnos
-puedan comparar directamente el enfoque vanilla vs framework.
+### Convención de carpetas
+
+Cada sesión de clase tiene su propia carpeta `clase N/` con la siguiente estructura interna:
+
+```
+clase N/
+├── README.md          ← objetivos, temas cubiertos y próxima clase
+├── teoria/            ← guías teóricas en Markdown
+├── ejemplos/          ← código de demostración (PHP, HTML, JS)
+└── ejercicios/        ← consignas y actividades para los alumnos
+```
+
+### Árbol actual
 
 ```
 /
-├── CLAUDE.md                        ← este archivo
-├── README.md
+├── CLAUDE.md                        ← instrucciones para Claude Code
+├── README.md                        ← hoja de ruta completa del semestre
 │
-└── clase 1/                         ← primer bloque de clases prácticas
-    ├── sistema-crud/                ← PHP puro (Unidades 2 y 3)
-    │   ├── index.php                (entrada: redirige según sesión)
-    │   ├── database.sql             (script MySQL completo)
-    │   ├── config/
-    │   │   └── database.php         (conexión PDO)
-    │   ├── auth/
-    │   │   ├── login.php
-    │   │   └── logout.php
-    │   ├── includes/
-    │   │   ├── auth_check.php       (protección de rutas)
-    │   │   ├── header.php
-    │   │   ├── navbar.php
-    │   │   └── footer.php
-    │   └── students/
-    │       ├── index.php            (listar + búsqueda + filtros)
-    │       ├── create.php           (formulario alta)
-    │       ├── edit.php             (formulario edición)
-    │       └── delete.php           (baja, solo POST)
-    │
-    └── proyecto-laravel/            ← Laravel (Unidad 4)
-        ├── app/
-        │   ├── Http/Controllers/
-        │   │   ├── EstudianteController.php
-        │   │   └── AuthController.php
-        │   └── Models/
-        │       ├── Estudiante.php
-        │       ├── Curso.php
-        │       └── User.php
-        ├── database/
-        │   ├── migrations/
-        │   └── database.sql         (script MySQL completo)
-        ├── resources/views/
-        └── routes/web.php
+├── clase 0/                         ← clase introductoria (demo del semestre)
+│   ├── README.md
+│   ├── sistema-crud/                ← PHP puro: CRUD completo (referencia U3)
+│   │   ├── index.php
+│   │   ├── database.sql
+│   │   ├── config/database.php
+│   │   ├── auth/
+│   │   ├── includes/
+│   │   └── students/
+│   └── proyecto-laravel/            ← Laravel: misma app con MVC (referencia U4)
+│       ├── app/Http/Controllers/
+│       ├── app/Models/
+│       ├── database/
+│       ├── resources/views/
+│       └── routes/web.php
+│
+└── clase 1/                         ← Unidad 2 · Temas 2.1-2.2 · HTTP y métodos
+    ├── README.md
+    ├── teoria/
+    │   └── http-fundamentos.md      ← protocolo HTTP, ciclo req/res, GET/POST/PUT/DELETE
+    ├── ejemplos/
+    │   ├── server.php               ← endpoint PHP que maneja los 4 métodos HTTP
+    │   └── cliente.html             ← UI Bootstrap/JS para probar el endpoint
+    └── ejercicios/
+        └── README.md                ← 5 actividades: conceptual, DevTools, práctica, tarea
 ```
 
 ---
