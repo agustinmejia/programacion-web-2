@@ -95,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         <?php endif; ?>
 
-        <form method="POST" novalidate>
+        <form method="POST" action="url_donde_va" novalidate>
             <div class="mb-3">
                 <label for="email" class="form-label fw-semibold">Email</label>
                 <div class="input-group">
