@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clase 3 — AJAX: XHR y Fetch</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body { background: #f8f9fa; }
+        .section-card { border-left: 4px solid; }
+        .section-xhr { border-color: #6f42c1; }
+        .section-fetch { border-color: #0d6efd; }
+        .section-async { border-color: #198754; }
+        .section-crud { border-color: #fd7e14; }
+
+        pre {
+            background: #1e1e2e;
+            color: #cdd6f4;
+            border-radius: 8px;
+            font-size: .82rem;
+            max-height: 280px;
+            overflow-y: auto;
+        }
+        .badge-activo     { background: #198754; }
+        .badge-inactivo   { background: #6c757d; }
+        .badge-suspendido { background: #dc3545; }
+
+        .spinner-overlay {
+            display: none;
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,.7);
+            place-items: center;
+            border-radius: 8px;
+        }
+        .spinner-overlay.show { display: grid; }
+
+        .tab-content { padding-top: 1rem; }
+        .nav-tabs .nav-link { font-weight: 500; }
+    </style>
+</head>
+<body>
+<div class="container py-4">
+
+    <!-- Encabezado -->
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <div>
+            <h1 class="h3 mb-0">Clase 3 — AJAX con XHR y Fetch</h1>
+            <p class="text-muted mb-0">Unidad 2 · Tema 2.4 · Programación Web II</p>
+        </div>
+        <span class="badge bg-primary ms-auto fs-6">
+            <i class="bi bi-wifi"></i> API local
+        </span>
+    </div>
+
+    <!-- Tabs de secciones -->
+    <ul class="nav nav-tabs mb-0" id="mainTabs">
+        <li class="nav-item">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-xhr">
+                <i class="bi bi-code-slash text-purple"></i> 1. XMLHttpRequest
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-fetch">
+                <i class="bi bi-arrow-repeat text-primary"></i> 2. Fetch + .then()
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-async">
+                <i class="bi bi-lightning text-success"></i> 3. async / await
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-crud">
+                <i class="bi bi-database text-warning"></i> 4. CRUD completo
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content border border-top-0 rounded-bottom bg-white p-4 shadow-sm">
+
+        <!-- ══════════════════════════════════════════════════
+             TAB 1: XMLHttpRequest
+        ══════════════════════════════════════════════════ -->
+        <div class="tab-pane fade show active" id="tab-xhr">
+            <div class="card section-card section-xhr mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-code-slash text-purple"></i> XMLHttpRequest (XHR)
+                    </h5>
+                    <p class="text-muted small">La forma clásica de hacer peticiones asincrónicas. Usá los botones para ver el código ejecutándose.</p>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">ID del estudiante</label>
+                            <div class="input-group">
+                                <input type="number" id="xhr-id" class="form-control" value="1" min="1" max="5">
+                                <button class="btn btn-outline-secondary" onclick="xhrGetUno()">
+                                    <i class="bi bi-search"></i> GET por id
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6 d-flex align-items-end">
+                            <button class="btn btn-outline-primary w-100" onclick="xhrGetTodos()">
+                                <i class="bi bi-list-ul"></i> GET todos
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-semibold small">Respuesta del servidor:</span>
+                            <span id="xhr-status" class="badge bg-secondary">—</span>
+                        </div>
+                        <pre id="xhr-output" class="p-3">// Presioná un botón para ver la respuesta aquí</pre>
+                    </div>
+
+                    <details class="mt-3">
+                        <summary class="text-muted small" style="cursor:pointer">Ver código fuente</summary>
+                        <pre class="p-3 mt-2"><code>function xhrGetUno() {
+    const id  = document.getElementById('xhr-id').value;
+    const xhr = new XMLHttpRequest();
+
+    xhr.open('GET', `api.php?id=${id}`, true);
+
+    xhr.onload = function () {
+        if (xhr.status >= 200 && xhr.status < 300) {
+            const data = JSON.parse(xhr.responseText);
+            mostrarResultado(data);
+        } else {
+            mostrarError(xhr.status, xhr.responseText);
+        }
+    };
+
+    xhr.onerror = () => console.error('Error de red');
+    xhr.send();
+}</code></pre>
+                    </details>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════════
+             TAB 2: Fetch + .then()
+        ══════════════════════════════════════════════════ -->
+        <div class="tab-pane fade" id="tab-fetch">
+            <div class="card section-card section-fetch mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-arrow-repeat text-primary"></i> Fetch API con <code>.then()</code>
+                    </h5>
+                    <p class="text-muted small">Promesas encadenadas. Notá cómo se verifica <code>response.ok</code> antes de leer el JSON.</p>
+
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <button class="btn btn-primary w-100" onclick="fetchGetTodos()">
+                                <i class="bi bi-list-ul"></i> GET /api.php
+                            </button>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-outline-primary w-100" onclick="fetchGetFiltrado('activo')">
+                                <i class="bi bi-funnel"></i> GET ?estado=activo
+                            </button>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-danger w-100" onclick="fetchGetError()">
+                                <i class="bi bi-exclamation-triangle"></i> GET ?id=999 (404)
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-semibold small">Respuesta del servidor:</span>
+                            <span id="fetch-status" class="badge bg-secondary">—</span>
+                        </div>
+                        <pre id="fetch-output" class="p-3">// Presioná un botón para ver la respuesta aquí</pre>
+                    </div>
+
+                    <details class="mt-3">
+                        <summary class="text-muted small" style="cursor:pointer">Ver código fuente</summary>
+                        <pre class="p-3 mt-2"><code>function fetchGetTodos() {
+    fetch('api.php')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log(data);
+        })
+        .catch(err => {
+            console.error('Error:', err.message);
+        });
+}</code></pre>
+                    </details>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════════
+             TAB 3: async / await
+        ══════════════════════════════════════════════════ -->
+        <div class="tab-pane fade" id="tab-async">
+            <div class="card section-card section-async mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-lightning text-success"></i> async / await
+                    </h5>
+                    <p class="text-muted small">La misma lógica que Fetch, pero con sintaxis que parece código síncrono. Más legible en operaciones en secuencia.</p>
+
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Buscar por nombre, apellido o DNI</label>
+                            <div class="input-group">
+                                <input type="text" id="async-q" class="form-control" placeholder="Ej: Ana, García, 10000001">
+                                <button class="btn btn-success" onclick="asyncBuscar()">
+                                    <i class="bi bi-search"></i> Buscar
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <button class="btn btn-outline-success w-100" onclick="asyncGetTodos()">
+                                <i class="bi bi-list-ul"></i> GET todos (async/await)
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-semibold small">Respuesta del servidor:</span>
+                            <span id="async-status" class="badge bg-secondary">—</span>
+                        </div>
+                        <pre id="async-output" class="p-3">// Presioná un botón para ver la respuesta aquí</pre>
+                    </div>
+
+                    <details class="mt-3">
+                        <summary class="text-muted small" style="cursor:pointer">Ver código fuente</summary>
+                        <pre class="p-3 mt-2"><code>async function asyncGetTodos() {
+    try {
+        const res = await fetch('api.php');
+
+        if (!res.ok) {
+            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        }
+
+        const data = await res.json();
+        console.log(data);
+
+    } catch (err) {
+        console.error('Error:', err.message);
+    }
+}
+
+// Buscar con parámetro de query
+async function asyncBuscar() {
+    const q = document.getElementById('async-q').value;
+    const url = `api.php?q=${encodeURIComponent(q)}`;
+
+    const res = await fetch(url);
+    const data = await res.json();
+    console.log(data);
+}</code></pre>
+                    </details>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════════
+             TAB 4: CRUD completo
+        ══════════════════════════════════════════════════ -->
+        <div class="tab-pane fade" id="tab-crud">
+            <div class="row g-4">
+
+                <!-- Panel izquierdo: formulario -->
+                <div class="col-lg-5">
+                    <div class="card section-card section-crud h-100">
+                        <div class="card-header bg-warning bg-opacity-10">
+                            <h6 class="mb-0"><i class="bi bi-pencil-square"></i> Crear estudiante (POST)</h6>
+                        </div>
+                        <div class="card-body">
+                            <form id="form-crear" novalidate>
+                                <div class="mb-3">
+                                    <label class="form-label">Nombre <span class="text-danger">*</span></label>
+                                    <input type="text" name="nombre" class="form-control" placeholder="Ej: Juan" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Apellido <span class="text-danger">*</span></label>
+                                    <input type="text" name="apellido" class="form-control" placeholder="Ej: Pérez" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">DNI <span class="text-danger">*</span></label>
+                                    <input type="text" name="dni" class="form-control" placeholder="Ej: 99000001" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Email <span class="text-danger">*</span></label>
+                                    <input type="email" name="email" class="form-control" placeholder="juan@universidad.edu" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Curso</label>
+                                    <input type="text" name="curso" class="form-control" placeholder="Ej: Ingeniería">
+                                </div>
+                                <button type="submit" class="btn btn-warning w-100">
+                                    <i class="bi bi-plus-circle"></i> Crear estudiante
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel derecho: respuesta y operaciones -->
+                <div class="col-lg-7">
+                    <!-- Operaciones PUT / DELETE -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="bi bi-tools"></i> Actualizar y eliminar</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-2">
+                                <div class="col-sm-3">
+                                    <label class="form-label small">ID objetivo</label>
+                                    <input type="number" id="crud-id" class="form-control" value="3" min="1" max="5">
+                                </div>
+                                <div class="col-sm-5">
+                                    <label class="form-label small">Nuevo estado (PUT)</label>
+                                    <select id="crud-estado" class="form-select">
+                                        <option value="activo">activo</option>
+                                        <option value="inactivo">inactivo</option>
+                                        <option value="suspendido">suspendido</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-4 d-flex align-items-end gap-2">
+                                    <button class="btn btn-outline-primary flex-fill" onclick="crudPut()">
+                                        <i class="bi bi-pencil"></i> PUT
+                                    </button>
+                                    <button class="btn btn-outline-danger flex-fill" onclick="crudDelete()">
+                                        <i class="bi bi-trash"></i> DELETE
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Respuesta -->
+                    <div class="position-relative">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-semibold small">Respuesta del servidor:</span>
+                            <span id="crud-status" class="badge bg-secondary">—</span>
+                        </div>
+                        <pre id="crud-output" class="p-3">// Las respuestas de POST, PUT y DELETE aparecen aquí</pre>
+                        <div id="crud-spinner" class="spinner-overlay">
+                            <div class="spinner-border text-warning"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /tab-content -->
+
+    <!-- Footer informativo -->
+    <div class="mt-4 p-3 bg-white rounded shadow-sm border">
+        <div class="row g-3 text-center">
+            <div class="col-md-3">
+                <div class="fs-4 text-purple"><i class="bi bi-code-slash"></i></div>
+                <div class="small fw-semibold">XHR</div>
+                <div class="text-muted" style="font-size:.75rem">Clásico · Callbacks</div>
+            </div>
+            <div class="col-md-3">
+                <div class="fs-4 text-primary"><i class="bi bi-arrow-repeat"></i></div>
+                <div class="small fw-semibold">Fetch + .then()</div>
+                <div class="text-muted" style="font-size:.75rem">Moderno · Promesas</div>
+            </div>
+            <div class="col-md-3">
+                <div class="fs-4 text-success"><i class="bi bi-lightning"></i></div>
+                <div class="small fw-semibold">async / await</div>
+                <div class="text-muted" style="font-size:.75rem">Moderno · Legible</div>
+            </div>
+            <div class="col-md-3">
+                <div class="fs-4 text-warning"><i class="bi bi-database"></i></div>
+                <div class="small fw-semibold">PHP API</div>
+                <div class="text-muted" style="font-size:.75rem">api.php · JSON</div>
+            </div>
+        </div>
+    </div>
+
+</div><!-- /container -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// ════════════════════════════════════════════════════════════════════════════
+// Helpers de UI
+// ════════════════════════════════════════════════════════════════════════════
+
+function mostrarEnPre(preId, badgeId, status, data) {
+    const pre   = document.getElementById(preId);
+    const badge = document.getElementById(badgeId);
+    const es2xx = status >= 200 && status < 300;
+
+    badge.textContent = status;
+    badge.className   = `badge ${es2xx ? 'bg-success' : 'bg-danger'}`;
+    pre.textContent   = JSON.stringify(data, null, 2);
+}
+
+function mostrarError(preId, badgeId, status, mensaje) {
+    const pre   = document.getElementById(preId);
+    const badge = document.getElementById(badgeId);
+
+    badge.textContent = status || 'Error';
+    badge.className   = 'badge bg-danger';
+    pre.textContent   = mensaje;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// TAB 1: XMLHttpRequest
+// ════════════════════════════════════════════════════════════════════════════
+
+function xhrGetUno() {
+    const id  = document.getElementById('xhr-id').value;
+    const xhr = new XMLHttpRequest();
+
+    xhr.open('GET', `api.php?id=${id}`, true);
+
+    xhr.onload = function () {
+        const data = JSON.parse(xhr.responseText);
+        mostrarEnPre('xhr-output', 'xhr-status', xhr.status, data);
+    };
+
+    xhr.onerror = function () {
+        mostrarError('xhr-output', 'xhr-status', 0, 'Error de red: no se pudo conectar con el servidor.');
+    };
+
+    xhr.send();
+    document.getElementById('xhr-output').textContent = '// Cargando...';
+}
+
+function xhrGetTodos() {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', 'api.php', true);
+
+    xhr.onload = function () {
+        const data = JSON.parse(xhr.responseText);
+        mostrarEnPre('xhr-output', 'xhr-status', xhr.status, data);
+    };
+
+    xhr.onerror = function () {
+        mostrarError('xhr-output', 'xhr-status', 0, 'Error de red.');
+    };
+
+    xhr.send();
+    document.getElementById('xhr-output').textContent = '// Cargando...';
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// TAB 2: Fetch + .then()
+// ════════════════════════════════════════════════════════════════════════════
+
+function fetchGetTodos() {
+    document.getElementById('fetch-output').textContent = '// Cargando...';
+
+    fetch('api.php')
+        .then(response => {
+            const status = response.status;
+            return response.json().then(data => ({ status, data }));
+        })
+        .then(({ status, data }) => {
+            mostrarEnPre('fetch-output', 'fetch-status', status, data);
+        })
+        .catch(err => {
+            mostrarError('fetch-output', 'fetch-status', 0, 'Error de red: ' + err.message);
+        });
+}
+
+function fetchGetFiltrado(estado) {
+    document.getElementById('fetch-output').textContent = '// Cargando...';
+
+    fetch(`api.php?estado=${estado}`)
+        .then(response => {
+            const status = response.status;
+            if (!response.ok) throw Object.assign(new Error(`HTTP ${status}`), { status });
+            return response.json().then(data => ({ status, data }));
+        })
+        .then(({ status, data }) => {
+            mostrarEnPre('fetch-output', 'fetch-status', status, data);
+        })
+        .catch(err => {
+            mostrarError('fetch-output', 'fetch-status', err.status || 0, err.message);
+        });
+}
+
+function fetchGetError() {
+    document.getElementById('fetch-output').textContent = '// Cargando...';
+
+    fetch('api.php?id=999')
+        .then(response => {
+            const status = response.status;
+            return response.json().then(data => ({ status, data }));
+        })
+        .then(({ status, data }) => {
+            // Notar: aunque es un 404, fetch() NO rechaza la promesa
+            // Tenemos que verificar el status manualmente
+            mostrarEnPre('fetch-output', 'fetch-status', status, data);
+        })
+        .catch(err => {
+            mostrarError('fetch-output', 'fetch-status', 0, err.message);
+        });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// TAB 3: async / await
+// ════════════════════════════════════════════════════════════════════════════
+
+async function asyncGetTodos() {
+    document.getElementById('async-output').textContent = '// Cargando...';
+
+    try {
+        const res  = await fetch('api.php');
+        const data = await res.json();
+        mostrarEnPre('async-output', 'async-status', res.status, data);
+
+    } catch (err) {
+        mostrarError('async-output', 'async-status', 0, 'Error: ' + err.message);
+    }
+}
+
+async function asyncBuscar() {
+    const q = document.getElementById('async-q').value.trim();
+    if (!q) {
+        await asyncGetTodos();
+        return;
+    }
+
+    document.getElementById('async-output').textContent = '// Buscando...';
+
+    try {
+        const url  = `api.php?q=${encodeURIComponent(q)}`;
+        const res  = await fetch(url);
+        const data = await res.json();
+        mostrarEnPre('async-output', 'async-status', res.status, data);
+
+    } catch (err) {
+        mostrarError('async-output', 'async-status', 0, 'Error: ' + err.message);
+    }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// TAB 4: CRUD completo
+// ════════════════════════════════════════════════════════════════════════════
+
+document.getElementById('form-crear').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const form    = e.target;
+    const btn     = form.querySelector('[type="submit"]');
+    const spinner = document.getElementById('crud-spinner');
+
+    // Leer todos los campos del formulario como objeto
+    const payload = Object.fromEntries(new FormData(form));
+
+    btn.disabled     = true;
+    btn.innerHTML    = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
+    spinner.classList.add('show');
+
+    try {
+        const res  = await fetch('api.php', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+        mostrarEnPre('crud-output', 'crud-status', res.status, data);
+
+        if (res.ok) form.reset();
+
+    } catch (err) {
+        mostrarError('crud-output', 'crud-status', 0, 'Error de red: ' + err.message);
+
+    } finally {
+        btn.disabled  = false;
+        btn.innerHTML = '<i class="bi bi-plus-circle"></i> Crear estudiante';
+        spinner.classList.remove('show');
+    }
+});
+
+async function crudPut() {
+    const id     = document.getElementById('crud-id').value;
+    const estado = document.getElementById('crud-estado').value;
+    const spinner = document.getElementById('crud-spinner');
+
+    spinner.classList.add('show');
+    document.getElementById('crud-output').textContent = '// Enviando PUT...';
+
+    try {
+        const res  = await fetch(`api.php?id=${id}`, {
+            method:  'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ estado }),
+        });
+
+        const data = await res.json();
+        mostrarEnPre('crud-output', 'crud-status', res.status, data);
+
+    } catch (err) {
+        mostrarError('crud-output', 'crud-status', 0, 'Error: ' + err.message);
+
+    } finally {
+        spinner.classList.remove('show');
+    }
+}
+
+async function crudDelete() {
+    const id     = document.getElementById('crud-id').value;
+    const spinner = document.getElementById('crud-spinner');
+
+    if (!confirm(`¿Eliminar estudiante id=${id}?`)) return;
+
+    spinner.classList.add('show');
+    document.getElementById('crud-output').textContent = '// Enviando DELETE...';
+
+    try {
+        const res  = await fetch(`api.php?id=${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        mostrarEnPre('crud-output', 'crud-status', res.status, data);
+
+    } catch (err) {
+        mostrarError('crud-output', 'crud-status', 0, 'Error: ' + err.message);
+
+    } finally {
+        spinner.classList.remove('show');
+    }
+}
+</script>
+</body>
+</html>

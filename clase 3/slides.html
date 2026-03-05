@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clase 3 — AJAX: XMLHttpRequest y Fetch</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/night.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/monokai.css">
+    <style>
+        /* ── Variables del tema ─────────────────────────────── */
+        :root {
+            --r-heading-color: #7dd3fc;
+            --r-link-color: #38bdf8;
+        }
+
+        /* ── CORRECCIÓN CRÍTICA: no tocar la alineación de section ──
+           Reveal.js posiciona los slides con position:absolute.
+           Sobreescribir display o text-align en section rompe el layout.
+           Aplicar text-align solo a los contenedores internos.          */
+        .slide-body { text-align: left; }
+        .slide-center { text-align: center; }
+
+        /* ── Encabezados centrados dentro del slide ─────────── */
+        .reveal .slides h1,
+        .reveal .slides h2 { text-align: center; }
+
+        /* ── Chips / badges ─────────────────────────────────── */
+        .chip {
+            display: inline-block;
+            padding: .18em .65em;
+            border-radius: 999px;
+            font-size: .6em;
+            font-weight: 700;
+            vertical-align: middle;
+            margin: .1em .2em;
+        }
+        .chip-blue   { background: #1d4ed8; color: #e0f2fe; }
+        .chip-green  { background: #15803d; color: #dcfce7; }
+        .chip-orange { background: #b45309; color: #fef3c7; }
+        .chip-purple { background: #7e22ce; color: #f3e8ff; }
+        .chip-red    { background: #b91c1c; color: #fee2e2; }
+
+        /* ── Layout de columnas (usar flex, no grid) ────────── */
+        .two-col {
+            display: flex;
+            gap: 1.2rem;
+        }
+        .two-col > * { flex: 1 1 0; min-width: 0; }
+
+        .three-col {
+            display: flex;
+            gap: .8rem;
+        }
+        .three-col > * { flex: 1 1 0; min-width: 0; }
+
+        /* ── Tarjetas ───────────────────────────────────────── */
+        .card-slide {
+            background: rgba(255,255,255,.07);
+            border-radius: 10px;
+            padding: .8rem 1rem;
+            border-left: 4px solid;
+        }
+        .card-blue   { border-color: #38bdf8; }
+        .card-green  { border-color: #4ade80; }
+        .card-orange { border-color: #fb923c; }
+        .card-purple { border-color: #a78bfa; }
+        .card-red    { border-color: #f87171; }
+
+        /* ── Pre / código ───────────────────────────────────── */
+        .reveal pre { box-shadow: none; width: 100%; margin: .6rem 0; }
+        .reveal pre code { max-height: 380px; font-size: .7em; line-height: 1.5; }
+
+        /* ── Caja de advertencia/tip ────────────────────────── */
+        .tip {
+            background: rgba(250,204,21,.1);
+            border: 1px solid rgba(250,204,21,.35);
+            border-radius: 8px;
+            padding: .55rem .9rem;
+            margin-top: .7rem;
+            font-size: .75em;
+        }
+        .tip strong { color: #fde047; }
+
+        /* ── Tablas de comparación ──────────────────────────── */
+        .cmp-table { width: 100%; border-collapse: collapse; font-size: .75em; margin-top: .8rem; }
+        .cmp-table th { color: #7dd3fc; padding: .4em .8em; border-bottom: 1px solid rgba(255,255,255,.2); }
+        .cmp-table td { padding: .35em .8em; }
+        .cmp-table tr:nth-child(even) td { background: rgba(255,255,255,.05); }
+
+        /* ── Pasos numerados ────────────────────────────────── */
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: .7rem;
+            margin-bottom: .55rem;
+        }
+        .step-num {
+            background: #1d4ed8;
+            color: #e0f2fe;
+            border-radius: 50%;
+            min-width: 1.7em;
+            height: 1.7em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: .78em;
+            flex-shrink: 0;
+            margin-top: .05em;
+        }
+        .step-body { font-size: .78em; line-height: 1.5; }
+    </style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ══════════════════════════════════════════════════════
+     1. PORTADA
+══════════════════════════════════════════════════════ -->
+<section data-background-gradient="linear-gradient(135deg,#0f172a 0%,#1e3a5f 100%)">
+    <div class="slide-center" style="padding: 2rem 0">
+        <p style="color:#94a3b8; font-size:.65em; letter-spacing:.15em; text-transform:uppercase; margin:0 0 .5em">
+            Programación Web II · Unidad 2 · Tema 2.4
+        </p>
+        <h1 style="font-size:2.6em; margin:.2em 0; color:#e0f2fe">AJAX</h1>
+        <h2 style="font-size:1.2em; color:#7dd3fc; font-weight:400; margin:.3em 0 1.5em">
+            XMLHttpRequest y Fetch API
+        </h2>
+        <div>
+            <span class="chip chip-purple">XHR</span>
+            <span class="chip chip-blue">fetch()</span>
+            <span class="chip chip-green">async / await</span>
+            <span class="chip chip-orange">Promesas</span>
+            <span class="chip chip-blue">PHP API</span>
+        </div>
+        <p style="margin-top:2.5rem; color:#475569; font-size:.6em">
+            Clase 3 · Universidad Privada del Valle
+        </p>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     2. AGENDA
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>Agenda de la clase</h2>
+    <div class="slide-body" style="margin-top:1.2rem">
+        <div class="three-col">
+            <div class="card-slide card-purple fragment">
+                <div style="text-align:center; font-size:1.4em">📜</div>
+                <div style="text-align:center; color:#a78bfa; font-weight:700; font-size:.8em; margin:.3em 0">Parte 1</div>
+                <ul style="font-size:.7em; margin:0; padding-left:1.1em; line-height:1.8">
+                    <li>¿Qué es AJAX?</li>
+                    <li>XMLHttpRequest</li>
+                    <li>Ciclo request/response</li>
+                </ul>
+            </div>
+            <div class="card-slide card-blue fragment">
+                <div style="text-align:center; font-size:1.4em">🔄</div>
+                <div style="text-align:center; color:#38bdf8; font-weight:700; font-size:.8em; margin:.3em 0">Parte 2</div>
+                <ul style="font-size:.7em; margin:0; padding-left:1.1em; line-height:1.8">
+                    <li>Fetch API</li>
+                    <li>Promesas y .then()</li>
+                    <li>async / await</li>
+                </ul>
+            </div>
+            <div class="card-slide card-green fragment">
+                <div style="text-align:center; font-size:1.4em">⚡</div>
+                <div style="text-align:center; color:#4ade80; font-weight:700; font-size:.8em; margin:.3em 0">Parte 3</div>
+                <ul style="font-size:.7em; margin:0; padding-left:1.1em; line-height:1.8">
+                    <li>PHP + AJAX</li>
+                    <li>Formulario sin recarga</li>
+                    <li>Tabla dinámica</li>
+                </ul>
+            </div>
+        </div>
+        <div class="tip fragment" style="text-align:center; margin-top:1rem">
+            <strong>Objetivo:</strong> Que tu página hable con el servidor <em>sin recargar</em>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     3. ¿QUÉ ES AJAX?
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>¿Qué es AJAX?</h2>
+    <div class="slide-body">
+        <p style="text-align:center; color:#94a3b8; font-size:.72em; margin:.3em 0 1em">
+            <strong style="color:#e2e8f0">A</strong>synchronous
+            <strong style="color:#e2e8f0">J</strong>avaScript
+            <strong style="color:#e2e8f0">A</strong>nd
+            <strong style="color:#e2e8f0">X</strong>ML
+            <span style="font-weight:400"> · (hoy usamos JSON)</span>
+        </p>
+        <div class="two-col">
+            <div class="card-slide card-red fragment">
+                <p style="color:#f87171; font-weight:700; margin:0 0 .4em; font-size:.8em">❌ Sin AJAX</p>
+                <div style="font-size:.7em; line-height:1.9; color:#cbd5e1">
+                    Usuario hace clic →<br>
+                    Formulario envía →<br>
+                    <strong style="color:#f87171">Página recarga completa</strong> →<br>
+                    Usuario ve resultado
+                </div>
+            </div>
+            <div class="card-slide card-green fragment">
+                <p style="color:#4ade80; font-weight:700; margin:0 0 .4em; font-size:.8em">✅ Con AJAX</p>
+                <div style="font-size:.7em; line-height:1.9; color:#cbd5e1">
+                    Usuario hace clic →<br>
+                    JS envía petición <strong style="color:#4ade80">en segundo plano</strong> →<br>
+                    Solo se actualiza<br>
+                    <strong style="color:#4ade80">parte del DOM</strong>
+                </div>
+            </div>
+        </div>
+        <div class="tip fragment">
+            <strong>¿Dónde lo ves?</strong> Google Maps · WhatsApp Web · Instagram likes · Buscadores en tiempo real
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     4. XMLHTTPREQUEST
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>XMLHttpRequest <span class="chip chip-purple">Clásico · 2001</span></h2>
+    <div class="slide-body">
+        <p style="color:#94a3b8; font-size:.7em; margin:.2em 0 .6em">Basado en <strong>callbacks</strong>. Importante para entender la historia.</p>
+        <pre><code class="javascript" data-trim data-line-numbers="1|3|5-10|12-13|16">
+const xhr = new XMLHttpRequest();
+
+// 1. Configurar: método, URL, asíncrono (true = no bloquea)
+xhr.open('GET', 'api.php?id=1', true);
+
+// 2. Qué hacer cuando llega la respuesta
+xhr.onload = function () {
+    if (xhr.status >= 200 && xhr.status < 300) {
+        const datos = JSON.parse(xhr.responseText);
+        console.log(datos);
+    } else {
+        console.error('Error HTTP:', xhr.status);
+    }
+};
+
+// 3. Errores de red (sin conexión, CORS bloqueado)
+xhr.onerror = () => console.error('Error de red');
+
+// 4. Disparar la petición
+xhr.send();
+        </code></pre>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     5. READYSTATE
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>Estados de XHR — <code>readyState</code></h2>
+    <div class="slide-body">
+        <p style="color:#94a3b8; font-size:.7em; margin:.2em 0 .8em; text-align:center">Ciclo de vida de la petición</p>
+        <table class="cmp-table">
+            <thead>
+                <tr><th>Valor</th><th>Constante</th><th>Significado</th></tr>
+            </thead>
+            <tbody>
+                <tr class="fragment"><td>0</td><td><code>UNSENT</code></td><td>open() no fue llamado</td></tr>
+                <tr class="fragment"><td>1</td><td><code>OPENED</code></td><td>open() fue llamado</td></tr>
+                <tr class="fragment"><td>2</td><td><code>HEADERS_RECEIVED</code></td><td>Send() llamado, headers OK</td></tr>
+                <tr class="fragment"><td>3</td><td><code>LOADING</code></td><td>Descargando el body</td></tr>
+                <tr class="fragment" style="color:#4ade80">
+                    <td><strong>4</strong></td>
+                    <td><code>DONE</code></td>
+                    <td><strong>Respuesta completa ✓</strong></td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="tip fragment">
+            <code>onload</code> se dispara solo cuando <code>readyState === 4</code>.
+            En código legacy verás el más verboso <code>onreadystatechange</code>.
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     6. FETCH API
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>Fetch API <span class="chip chip-blue">Moderno · 2015</span></h2>
+    <div class="slide-body">
+        <p style="color:#94a3b8; font-size:.7em; margin:.2em 0 .6em">Basado en <strong>Promesas</strong>. Mucho más legible que XHR.</p>
+        <pre><code class="javascript" data-trim data-line-numbers="1|2-4|5|6-8">
+fetch('api.php?id=1')
+    .then(response => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();  // retorna otra Promesa
+    })
+    .then(datos => {
+        console.log(datos.nombre);
+    })
+    .catch(err => console.error('Error:', err.message));
+        </code></pre>
+        <div class="tip fragment">
+            ⚠️ <strong>Trampa clásica:</strong> <code>fetch()</code> <em>NO rechaza</em> la promesa cuando el servidor responde
+            con un error HTTP (404, 500, etc.). Solo rechaza en errores de <strong>red</strong>.
+            Siempre verificar <code>response.ok</code>.
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     7. OBJETO RESPONSE
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>El objeto <code>Response</code></h2>
+    <div class="slide-body">
+        <p style="color:#94a3b8; font-size:.7em; margin:.2em 0 .8em; text-align:center">
+            Lo que devuelve la primera promesa de <code>fetch()</code>
+        </p>
+        <div class="two-col">
+            <div>
+                <p style="color:#7dd3fc; font-weight:700; font-size:.78em; margin:0 0 .4em">Propiedades</p>
+                <table class="cmp-table">
+                    <tr class="fragment"><td><code>response.ok</code></td><td>true si 200–299</td></tr>
+                    <tr class="fragment"><td><code>response.status</code></td><td>Código HTTP</td></tr>
+                    <tr class="fragment"><td><code>response.headers</code></td><td>Cabeceras recibidas</td></tr>
+                </table>
+            </div>
+            <div>
+                <p style="color:#7dd3fc; font-weight:700; font-size:.78em; margin:0 0 .4em">Métodos (→ Promesa)</p>
+                <table class="cmp-table">
+                    <tr class="fragment"><td><code>response.json()</code></td><td>Parsea como JSON</td></tr>
+                    <tr class="fragment"><td><code>response.text()</code></td><td>Lee como string</td></tr>
+                    <tr class="fragment"><td><code>response.blob()</code></td><td>Para archivos/imgs</td></tr>
+                </table>
+            </div>
+        </div>
+        <div class="tip fragment" style="margin-top:.8rem">
+            ⚠️ El <strong>body solo se puede leer una vez</strong>.
+            Si llamás <code>response.json()</code>, ya no podés llamar <code>response.text()</code>.
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     8. PROMESAS
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>¿Qué es una Promesa?</h2>
+    <div class="slide-body">
+        <div class="three-col" style="margin-top:1rem; justify-content:center">
+            <div class="card-slide card-orange fragment" style="text-align:center; padding:.8rem">
+                <div style="font-size:1.6em">⏳</div>
+                <div style="color:#fb923c; font-weight:700; font-size:.85em">pending</div>
+                <div style="color:#94a3b8; font-size:.65em">esperando respuesta</div>
+            </div>
+            <div class="card-slide card-green fragment" style="text-align:center; padding:.8rem">
+                <div style="font-size:1.6em">✅</div>
+                <div style="color:#4ade80; font-weight:700; font-size:.85em">fulfilled</div>
+                <div style="color:#94a3b8; font-size:.65em">resuelta con valor</div>
+            </div>
+            <div class="card-slide card-red fragment" style="text-align:center; padding:.8rem">
+                <div style="font-size:1.6em">❌</div>
+                <div style="color:#f87171; font-weight:700; font-size:.85em">rejected</div>
+                <div style="color:#94a3b8; font-size:.65em">rechazada con error</div>
+            </div>
+        </div>
+        <pre class="fragment" style="margin-top:.8rem"><code class="javascript" data-trim>
+const promesa = fetch('api.php');  // → pending…
+
+promesa
+    .then(res => res.json())   // si se resuelve → .then()
+    .catch(err => ...)         // si se rechaza  → .catch()
+    .finally(() => ...);       // siempre (para cleanup/loading)
+        </code></pre>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     9. ASYNC / AWAIT
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>async / await <span class="chip chip-green">Recomendado</span></h2>
+    <div class="slide-body">
+        <p style="color:#94a3b8; font-size:.7em; margin:.2em 0 .6em">
+            Syntactic sugar sobre promesas. Mismo comportamiento, código más legible.
+        </p>
+        <div class="two-col">
+            <div class="fragment">
+                <p style="color:#94a3b8; font-size:.7em; margin:0 0 .3em">Con .then()</p>
+                <pre><code class="javascript" data-trim style="font-size:.64em">
+fetch('api.php')
+  .then(res => res.json())
+  .then(data => {
+    console.log(data);
+  })
+  .catch(err => {
+    console.error(err);
+  });
+                </code></pre>
+            </div>
+            <div class="fragment">
+                <p style="color:#4ade80; font-size:.7em; margin:0 0 .3em">Con async/await ✓</p>
+                <pre><code class="javascript" data-trim style="font-size:.64em">
+async function cargar() {
+  try {
+    const res  = await fetch('api.php');
+    const data = await res.json();
+    console.log(data);
+  } catch (err) {
+    console.error(err);
+  }
+}
+                </code></pre>
+            </div>
+        </div>
+        <div class="tip fragment">
+            <code>await</code> solo puede usarse dentro de una función <strong>async</strong>.
+            Los errores se capturan con <strong>try / catch</strong>.
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     10. POST CON FETCH
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>POST con fetch <span class="chip chip-orange">Enviar datos</span></h2>
+    <div class="slide-body">
+        <pre><code class="javascript" data-trim data-line-numbers="1-5|6|8-11|13-15">
+async function crearEstudiante(datos) {
+    const res = await fetch('api.php', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(datos),  // objeto JS → string JSON
+    });
+
+    if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message);
+    }
+
+    return await res.json();
+}
+        </code></pre>
+        <div class="tip fragment">
+            Siempre acompañar un <strong>body JSON</strong> con el header
+            <code>Content-Type: application/json</code> para que PHP sepa cómo leerlo.
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     11. FORMULARIO SIN RECARGA
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>Formulario sin recarga</h2>
+    <div class="slide-body">
+        <p style="color:#94a3b8; font-size:.7em; margin:.2em 0 .4em">El patrón más usado del curso</p>
+        <pre><code class="javascript" data-trim data-line-numbers="1-2|4|5|7-8|10-14|16-17|19-21">
+document.getElementById('mi-form')
+  .addEventListener('submit', async (e) => {
+
+    e.preventDefault();   // 1. Evitar recarga de página
+    const btn = e.target.querySelector('[type=submit]');
+
+    // 2. Leer campos del formulario como objeto JS
+    const payload = Object.fromEntries(new FormData(e.target));
+
+    btn.disabled = true;  // 3. Estado de carga
+    try {
+      const res  = await fetch('api.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:   JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error((await res.json()).message);
+      e.target.reset();   // 4. Limpiar solo si fue exitoso
+    } catch (err) {
+      alert('Error: ' + err.message);
+    } finally {
+      btn.disabled = false; // 5. Siempre reactivar botón
+    }
+  });
+        </code></pre>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     12. PHP RECIBE AJAX
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>PHP recibe peticiones AJAX</h2>
+    <div class="slide-body">
+        <p style="color:#94a3b8; font-size:.7em; margin:.2em 0 .6em">
+            El servidor no distingue si la petición viene de un formulario clásico o de fetch
+        </p>
+        <pre><code class="php" data-trim data-line-numbers="1-2|4|6-7|9-12">
+&lt;?php
+header('Content-Type: application/json');
+
+$method = $_SERVER['REQUEST_METHOD'];
+
+// GET clásico → parámetros en $_GET
+// POST desde form HTML → datos en $_POST
+
+if ($method === 'POST') {
+    // fetch() con JSON body → leer el input crudo
+    $body = json_decode(file_get_contents('php://input'), true);
+    // $body es ahora un array PHP con los datos enviados
+}
+        </code></pre>
+        <div class="two-col" style="margin-top:.7rem">
+            <div class="card-slide card-blue fragment" style="font-size:.72em">
+                <strong style="color:#38bdf8">Form HTML clásico</strong><br>
+                Datos en <code>$_POST['campo']</code>
+            </div>
+            <div class="card-slide card-orange fragment" style="font-size:.72em">
+                <strong style="color:#fb923c">fetch() con JSON body</strong><br>
+                Leer con <code>php://input</code> + <code>json_decode()</code>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     13. COMPARATIVA XHR VS FETCH
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>XHR vs Fetch API</h2>
+    <div class="slide-body">
+        <table class="cmp-table">
+            <thead>
+                <tr>
+                    <th>Aspecto</th>
+                    <th style="color:#a78bfa">XMLHttpRequest</th>
+                    <th style="color:#38bdf8">Fetch API</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="fragment"><td>Año</td><td>2001</td><td>2015</td></tr>
+                <tr class="fragment"><td>Paradigma</td><td>Callbacks</td><td>Promesas / async-await</td></tr>
+                <tr class="fragment"><td>Legibilidad</td><td>Verbosa</td><td>Concisa</td></tr>
+                <tr class="fragment"><td>Errores HTTP</td><td>Verificar <code>xhr.status</code></td><td>Verificar <code>response.ok</code></td></tr>
+                <tr class="fragment"><td>Cancelar</td><td><code>xhr.abort()</code></td><td><code>AbortController</code></td></tr>
+                <tr class="fragment" style="color:#4ade80">
+                    <td><strong>¿Usar hoy?</strong></td>
+                    <td>Solo legacy</td>
+                    <td><strong>Sí ✓</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     14. DEMO EN VIVO
+══════════════════════════════════════════════════════ -->
+<section data-background-gradient="linear-gradient(135deg,#0f172a 0%,#1a2e1a 100%)">
+    <div class="slide-center">
+        <div style="font-size:3.5em; margin-bottom:.2em">⚡</div>
+        <h2 style="color:#4ade80">Demo en vivo</h2>
+        <p style="color:#94a3b8; font-size:.8em">Abrimos el cliente interactivo</p>
+        <div style="margin:1rem auto; background:rgba(255,255,255,.06); border-radius:10px; padding:.7rem 1.5rem; display:inline-block">
+            <code style="color:#86efac; font-size:.78em">
+                localhost/programacion-web-2/clase%203/ejemplos/cliente.html
+            </code>
+        </div>
+        <div class="three-col" style="margin-top:1.2rem">
+            <div class="card-slide card-purple" style="text-align:center; padding:.7rem">
+                <div style="font-size:1.2em">📜</div>
+                <div style="color:#a78bfa; font-size:.78em; font-weight:700">Tab 1</div>
+                <div style="color:#94a3b8; font-size:.65em">XHR</div>
+            </div>
+            <div class="card-slide card-blue" style="text-align:center; padding:.7rem">
+                <div style="font-size:1.2em">🔄</div>
+                <div style="color:#38bdf8; font-size:.78em; font-weight:700">Tab 2</div>
+                <div style="color:#94a3b8; font-size:.65em">fetch + .then()</div>
+            </div>
+            <div class="card-slide card-green" style="text-align:center; padding:.7rem">
+                <div style="font-size:1.2em">⚡</div>
+                <div style="color:#4ade80; font-size:.78em; font-weight:700">Tab 3 & 4</div>
+                <div style="color:#94a3b8; font-size:.65em">async/await + CRUD</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     15. ACTIVIDADES
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>Actividades de la clase</h2>
+    <div class="slide-body" style="margin-top:.8rem">
+        <div class="step fragment">
+            <div class="step-num" style="background:#7e22ce">1</div>
+            <div class="step-body">
+                <strong>Conceptual</strong> — Comparativa XHR vs Fetch.
+                ¿Por qué fetch no rechaza en errores HTTP?
+            </div>
+        </div>
+        <div class="step fragment">
+            <div class="step-num">2</div>
+            <div class="step-body">
+                <strong>DevTools</strong> — Inspeccionar peticiones AJAX.
+                Ver el Request Payload de un POST en Network tab.
+            </div>
+        </div>
+        <div class="step fragment">
+            <div class="step-num" style="background:#15803d">3</div>
+            <div class="step-body">
+                <strong>Consola</strong> — Primer <code>fetch</code> a JSONPlaceholder.
+                Convertir a async/await.
+            </div>
+        </div>
+        <div class="step fragment">
+            <div class="step-num" style="background:#b45309">4</div>
+            <div class="step-body">
+                <strong>Formulario</strong> — Enviar POST a <code>api.php</code> sin recarga.
+                Manejar errores 422 y 409.
+            </div>
+        </div>
+        <div class="step fragment">
+            <div class="step-num" style="background:#0f766e">5</div>
+            <div class="step-body">
+                <strong>Tabla dinámica</strong> — Cargar estudiantes con AJAX,
+                filtrar en memoria, badges de estado coloreados.
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     16. RESUMEN
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>Resumen</h2>
+    <div class="slide-body" style="margin-top:.8rem">
+        <div class="step fragment">
+            <div class="step-num" style="background:#7e22ce">1</div>
+            <div class="step-body"><strong>AJAX</strong> permite comunicarse con el servidor sin recargar la página.</div>
+        </div>
+        <div class="step fragment">
+            <div class="step-num">2</div>
+            <div class="step-body"><strong>XHR</strong> es la forma clásica (callbacks). Útil para entender el concepto.</div>
+        </div>
+        <div class="step fragment">
+            <div class="step-num">3</div>
+            <div class="step-body"><strong>Fetch</strong> es la forma moderna (promesas). Preferila en todo código nuevo.</div>
+        </div>
+        <div class="step fragment">
+            <div class="step-num" style="background:#15803d">4</div>
+            <div class="step-body"><strong>async/await</strong> simplifica la lectura. Usá try/catch para errores.</div>
+        </div>
+        <div class="step fragment">
+            <div class="step-num" style="background:#b45309">5</div>
+            <div class="step-body">PHP lee el body JSON con <code>file_get_contents('php://input')</code> + <code>json_decode()</code>.</div>
+        </div>
+        <div class="step fragment">
+            <div class="step-num" style="background:#b91c1c">6</div>
+            <div class="step-body">Fetch <strong>no rechaza</strong> en errores HTTP. Siempre verificar <code>response.ok</code>.</div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     17. PRÓXIMA CLASE
+══════════════════════════════════════════════════════ -->
+<section data-background-gradient="linear-gradient(135deg,#0f172a 0%,#1a1a2e 100%)">
+    <div class="slide-center">
+        <p style="color:#475569; font-size:.65em; letter-spacing:.1em; text-transform:uppercase; margin:0 0 .3em">Próxima sesión</p>
+        <h2 style="color:#7dd3fc; margin:.2em 0">Clase 4</h2>
+        <h3 style="color:#e2e8f0; font-weight:400; margin:.2em 0 .8em">Introducción a PHP</h3>
+        <p style="color:#94a3b8; font-size:.8em; margin:0 0 1.5em">
+            Variables, tipos, arrays y funciones.<br>
+            Primer script que genera HTML dinámico.
+        </p>
+        <div>
+            <span class="chip chip-orange">Variables PHP</span>
+            <span class="chip chip-orange">Arrays</span>
+            <span class="chip chip-orange">Funciones</span>
+            <span class="chip chip-orange">HTML dinámico</span>
+        </div>
+        <p style="margin-top:3rem; color:#334155; font-size:.6em">
+            Universidad Privada del Valle · Programación Web II
+        </p>
+    </div>
+</section>
+
+</div><!-- /slides -->
+</div><!-- /reveal -->
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+<script>
+    Reveal.initialize({
+        hash:            true,
+        slideNumber:     'c/t',
+        transition:      'slide',
+        transitionSpeed: 'fast',
+        controls:        true,
+        progress:        true,
+        center:          true,   // Reveal maneja el centrado vertical
+        width:           1280,
+        height:          720,
+        margin:          0.06,
+        plugins: [ RevealHighlight, RevealNotes ],
+    });
+</script>
+</body>
+</html>
