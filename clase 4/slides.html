@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clase 4 — JSON: estructura y serialización</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/night.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/monokai.css">
+    <style>
+        /* ── Variables del tema ─────────────────────────────── */
+        :root {
+            --r-heading-color: #7dd3fc;
+            --r-link-color: #38bdf8;
+        }
+
+        /* ── Alineación de contenedores internos ─────────────
+           Reveal.js posiciona los slides con position:absolute.
+           No tocar display ni text-align en section.           */
+        .slide-body   { text-align: left; }
+        .slide-center { text-align: center; }
+
+        /* ── Encabezados centrados ───────────────────────────── */
+        .reveal .slides h1,
+        .reveal .slides h2 { text-align: center; }
+
+        /* ── Chips / badges ─────────────────────────────────── */
+        .chip {
+            display: inline-block;
+            padding: .18em .65em;
+            border-radius: 999px;
+            font-size: .6em;
+            font-weight: 700;
+            vertical-align: middle;
+            margin: .1em .2em;
+        }
+        .chip-blue   { background: #1d4ed8; color: #e0f2fe; }
+        .chip-green  { background: #15803d; color: #dcfce7; }
+        .chip-orange { background: #b45309; color: #fef3c7; }
+        .chip-purple { background: #7e22ce; color: #f3e8ff; }
+        .chip-red    { background: #b91c1c; color: #fee2e2; }
+        .chip-teal   { background: #0f766e; color: #ccfbf1; }
+
+        /* ── Layout de columnas ─────────────────────────────── */
+        .two-col {
+            display: flex;
+            gap: 1.2rem;
+        }
+        .two-col > * { flex: 1 1 0; min-width: 0; }
+
+        .three-col {
+            display: flex;
+            gap: .8rem;
+        }
+        .three-col > * { flex: 1 1 0; min-width: 0; }
+
+        /* ── Tarjetas ───────────────────────────────────────── */
+        .card-slide {
+            background: rgba(255,255,255,.07);
+            border-radius: 10px;
+            padding: .8rem 1rem;
+            border-left: 4px solid;
+        }
+        .card-blue   { border-color: #38bdf8; }
+        .card-green  { border-color: #4ade80; }
+        .card-orange { border-color: #fb923c; }
+        .card-purple { border-color: #a78bfa; }
+        .card-red    { border-color: #f87171; }
+        .card-teal   { border-color: #2dd4bf; }
+
+        /* ── Pre / código ───────────────────────────────────── */
+        .reveal pre { box-shadow: none; width: 100%; margin: .6rem 0; }
+        .reveal pre code { max-height: 380px; font-size: .7em; line-height: 1.5; }
+
+        /* ── Caja de advertencia/tip ────────────────────────── */
+        .tip {
+            background: rgba(250,204,21,.1);
+            border: 1px solid rgba(250,204,21,.35);
+            border-radius: 8px;
+            padding: .55rem .9rem;
+            margin-top: .7rem;
+            font-size: .75em;
+        }
+        .tip strong { color: #fde047; }
+
+        /* ── Caja de error / advertencia roja ───────────────── */
+        .warn {
+            background: rgba(239,68,68,.1);
+            border: 1px solid rgba(239,68,68,.3);
+            border-radius: 8px;
+            padding: .45rem .85rem;
+            margin-top: .6rem;
+            font-size: .72em;
+            color: #fca5a5;
+        }
+
+        /* ── Tablas de comparación ──────────────────────────── */
+        .cmp-table { width: 100%; border-collapse: collapse; font-size: .68em; margin-top: .8rem; }
+        .cmp-table th { color: #7dd3fc; padding: .35em .6em; border-bottom: 1px solid rgba(255,255,255,.2); text-align: left; }
+        .cmp-table td { padding: .3em .6em; }
+        .cmp-table tr:nth-child(even) td { background: rgba(255,255,255,.05); }
+
+        /* ── Pasos numerados ────────────────────────────────── */
+        .step { display: flex; align-items: flex-start; gap: .7rem; margin-bottom: .55rem; }
+        .step-num {
+            background: #1d4ed8; color: #e0f2fe; border-radius: 50%;
+            min-width: 1.7em; height: 1.7em; display: flex;
+            align-items: center; justify-content: center;
+            font-weight: 700; font-size: .78em; flex-shrink: 0; margin-top: .05em;
+        }
+        .step-body { font-size: .78em; line-height: 1.5; }
+
+        /* ── Filas de tipos ─────────────────────────────────── */
+        .type-row {
+            display: flex;
+            align-items: center;
+            gap: .7rem;
+            padding: .3rem .5rem;
+            border-radius: 6px;
+            margin-bottom: .25rem;
+            font-size: .74em;
+        }
+        .type-row:nth-child(even) { background: rgba(255,255,255,.05); }
+        .type-name { font-weight: 700; min-width: 5em; color: #7dd3fc; }
+        .type-example { font-family: monospace; color: #a5f3fc; }
+        .type-note { color: #94a3b8; font-size: .9em; }
+
+        /* ── Anti-patrón ────────────────────────────────────── */
+        .antipattern { font-size: .75em; line-height: 1.6; }
+        .antipattern .bad  { color: #f87171; }
+        .antipattern .good { color: #4ade80; }
+    </style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ══════════════════════════════════════════════════════
+     1. PORTADA
+══════════════════════════════════════════════════════ -->
+<section data-background-gradient="linear-gradient(135deg,#0f172a 0%,#1a3a2a 100%)">
+    <div class="slide-center" style="padding: 2rem 0">
+        <p style="color:#94a3b8; font-size:.65em; letter-spacing:.15em; text-transform:uppercase; margin:0 0 .5em">
+            Programación Web II · Unidad 2 · Tema 2.5
+        </p>
+        <h1 style="font-size:2.8em; margin:.2em 0; color:#a5f3fc; letter-spacing:-.02em">JSON</h1>
+        <h2 style="font-size:1.15em; color:#7dd3fc; font-weight:400; margin:.3em 0 1.5em">
+            Estructura y serialización de datos
+        </h2>
+        <div>
+            <span class="chip chip-teal">Tipos de datos</span>
+            <span class="chip chip-blue">JSON.parse()</span>
+            <span class="chip chip-green">JSON.stringify()</span>
+            <span class="chip chip-orange">XML vs Form data</span>
+            <span class="chip chip-purple">PHP json_encode</span>
+        </div>
+        <p style="margin-top:2.5rem; color:#475569; font-size:.6em">
+            Clase 4 · Semana 2 · Universidad Privada del Valle
+        </p>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     2. AGENDA
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>Agenda de la clase</h2>
+    <div class="slide-body" style="margin-top:1.2rem">
+        <div class="three-col">
+            <div class="card-slide card-teal fragment">
+                <div style="text-align:center; font-size:1.3em">🗂️</div>
+                <div style="text-align:center; color:#2dd4bf; font-weight:700; font-size:.78em; margin:.3em 0">Parte 1</div>
+                <ul style="font-size:.7em; margin:0; padding-left:1.1em; line-height:1.9">
+                    <li>¿Qué es JSON?</li>
+                    <li>6 tipos de datos válidos</li>
+                    <li>Reglas estrictas de sintaxis</li>
+                </ul>
+            </div>
+            <div class="card-slide card-blue fragment">
+                <div style="text-align:center; font-size:1.3em">⚙️</div>
+                <div style="text-align:center; color:#38bdf8; font-weight:700; font-size:.78em; margin:.3em 0">Parte 2</div>
+                <ul style="font-size:.7em; margin:0; padding-left:1.1em; line-height:1.9">
+                    <li>JSON.parse()</li>
+                    <li>JSON.stringify()</li>
+                    <li>Valores que stringify omite</li>
+                </ul>
+            </div>
+            <div class="card-slide card-green fragment">
+                <div style="text-align:center; font-size:1.3em">🔌</div>
+                <div style="text-align:center; color:#4ade80; font-weight:700; font-size:.78em; margin:.3em 0">Parte 3</div>
+                <ul style="font-size:.7em; margin:0; padding-left:1.1em; line-height:1.9">
+                    <li>JSON vs XML vs Form data</li>
+                    <li>json_encode / json_decode</li>
+                    <li>php://input</li>
+                </ul>
+            </div>
+        </div>
+        <div class="tip fragment" style="text-align:center; margin-top:1rem">
+            <strong>Objetivo:</strong> Entender exactamente <em>qué viaja</em> en las peticiones AJAX que hicimos la clase pasada
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     3. ¿QUÉ ES JSON?
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>¿Qué es JSON?</h2>
+    <div class="slide-body">
+        <p style="text-align:center; font-size:.72em; color:#94a3b8; margin:.2em 0 .8em">
+            <strong style="color:#e2e8f0">J</strong>avaScript
+            <strong style="color:#e2e8f0">O</strong>bject
+            <strong style="color:#e2e8f0">N</strong>otation
+            · RFC 8259 · ECMA-404
+        </p>
+        <div class="two-col">
+            <div>
+                <div class="card-slide card-teal fragment">
+                    <p style="color:#2dd4bf; font-weight:700; font-size:.8em; margin:0 0 .4em">Historia</p>
+                    <ul style="font-size:.72em; margin:0; padding-left:1.2em; line-height:1.9">
+                        <li>Nació de los objetos JS (~2001)</li>
+                        <li>Douglas Crockford lo popularizó</li>
+                        <li>Independiente del lenguaje hoy</li>
+                        <li>RFC 8259 (2017) es el estándar</li>
+                    </ul>
+                </div>
+                <div class="card-slide card-blue fragment" style="margin-top:.7rem">
+                    <p style="color:#38bdf8; font-weight:700; font-size:.8em; margin:0 0 .4em">Ventajas</p>
+                    <ul style="font-size:.72em; margin:0; padding-left:1.2em; line-height:1.9">
+                        <li>Ligero (sin etiquetas redundantes)</li>
+                        <li>Legible por humanos</li>
+                        <li>Soporte nativo en el navegador</li>
+                        <li>Anidamiento libre</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="fragment">
+                <p style="font-size:.72em; color:#94a3b8; margin:0 0 .5em">Mismo dato — JSON vs XML:</p>
+                <pre><code class="json" data-trim style="font-size:.72em">// JSON — 60 bytes
+{
+  "id": 1,
+  "nombre": "Laptop",
+  "precio": 850
+}</code></pre>
+                <pre><code class="xml" data-trim style="font-size:.72em"><!-- XML — 89 bytes -->
+&lt;producto&gt;
+  &lt;id&gt;1&lt;/id&gt;
+  &lt;nombre&gt;Laptop&lt;/nombre&gt;
+  &lt;precio&gt;850&lt;/precio&gt;
+&lt;/producto&gt;</code></pre>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     4. TIPOS DE DATOS VÁLIDOS
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>Tipos de datos válidos en JSON</h2>
+    <div class="slide-body" style="margin-top:.8rem">
+        <p style="text-align:center; font-size:.72em; color:#94a3b8; margin:0 0 .7em">
+            JSON admite exactamente <strong style="color:#e2e8f0">6 tipos</strong>. Ni más, ni menos.
+        </p>
+        <div class="type-row fragment"><span class="type-name">string</span><span class="type-example">"Hola mundo"</span><span class="type-note">Comillas dobles OBLIGATORIAS</span></div>
+        <div class="type-row fragment"><span class="type-name">number</span><span class="type-example">42 · 3.14 · -7 · 1.5e3</span><span class="type-note">Sin comillas, sin NaN/Infinity</span></div>
+        <div class="type-row fragment"><span class="type-name">boolean</span><span class="type-example">true · false</span><span class="type-note">Minúsculas. No True, no FALSE</span></div>
+        <div class="type-row fragment"><span class="type-name">null</span><span class="type-example">null</span><span class="type-note">Minúsculas. No NULL, no undefined</span></div>
+        <div class="type-row fragment"><span class="type-name">array</span><span class="type-example">[1, "dos", true, null]</span><span class="type-note">Cualquier tipo, incluidos objetos</span></div>
+        <div class="type-row fragment"><span class="type-name">object</span><span class="type-example">{"clave": "valor"}</span><span class="type-note">Claves siempre strings con comillas dobles</span></div>
+
+        <div class="warn fragment">
+            <strong>No existen en JSON:</strong> undefined · function · Symbol · Date · NaN · Infinity · comentarios
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     5. REGLAS ESTRICTAS — VÁLIDO VS INVÁLIDO
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>Reglas estrictas de sintaxis</h2>
+    <div class="slide-body">
+        <div class="two-col" style="margin-top:.6rem">
+            <div>
+                <p style="color:#f87171; font-weight:700; font-size:.8em; margin:0 0 .4em">❌ JSON INVÁLIDO</p>
+                <pre><code class="javascript" data-trim style="font-size:.68em">// Clave sin comillas
+{ nombre: "Juan" }
+
+// Comillas simples
+{ "nombre": 'Juan' }
+
+// Trailing comma
+{
+  "a": 1,
+  "b": 2,
+}
+
+// Comentario
+{
+  // nombre del usuario
+  "nombre": "Ana"
+}
+
+// Valores JS no soportados
+{ "fn": () => 42 }
+{ "undef": undefined }
+{ "nan": NaN }</code></pre>
+            </div>
+            <div>
+                <p style="color:#4ade80; font-weight:700; font-size:.8em; margin:0 0 .4em">✅ JSON VÁLIDO</p>
+                <pre><code class="json" data-trim style="font-size:.68em">{
+  "nombre": "Juan",
+  "edad": 20,
+  "activo": true,
+  "beca": null,
+  "cursos": [
+    "Matemáticas",
+    "Física"
+  ],
+  "direccion": {
+    "ciudad": "Cochabamba",
+    "pais": "Bolivia"
+  }
+}</code></pre>
+                <div class="tip" style="font-size:.7em; margin-top:.5rem">
+                    <strong>Recordá:</strong> JSON es más estricto que un objeto literal de JavaScript.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     6. JSON.parse()
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2><code>JSON.parse()</code> <span class="chip chip-blue">string → valor JS</span></h2>
+    <div class="slide-body">
+        <div class="two-col" style="margin-top:.6rem">
+            <div>
+                <p style="font-size:.72em; color:#94a3b8; margin:0 0 .4em">Uso básico</p>
+                <pre><code class="javascript" data-trim data-line-numbers="1-4|6-7|9-11">const json = '{"nombre":"Ana","edad":22}';
+const obj  = JSON.parse(json);
+
+console.log(obj.nombre); // "Ana"
+console.log(obj.edad);   // 22 ← number, no string
+console.log(typeof obj); // "object"
+
+// ⚠️ Siempre usar try/catch con datos externos
+try {
+    const datos = JSON.parse(inputDelUsuario);
+} catch (e) {
+    // e es un SyntaxError
+    console.error('JSON inválido:', e.message);
+}</code></pre>
+            </div>
+            <div>
+                <p style="font-size:.72em; color:#94a3b8; margin:0 0 .4em">El parámetro <em>reviver</em></p>
+                <pre><code class="javascript" data-trim style="font-size:.68em">// Transformar valores al parsear
+const json = '{"fecha":"2025-03-11","precio":"850"}';
+
+const obj = JSON.parse(json, (clave, valor) => {
+    if (clave === 'fecha')  return new Date(valor);
+    if (clave === 'precio') return parseFloat(valor);
+    return valor;
+});
+
+console.log(obj.fecha instanceof Date); // true
+console.log(typeof obj.precio);         // "number"</code></pre>
+                <div class="card-slide card-teal fragment" style="margin-top:.5rem; font-size:.72em">
+                    <strong style="color:#2dd4bf">Casos de uso:</strong>
+                    <ul style="margin:.3em 0 0; padding-left:1.1em; line-height:1.8">
+                        <li>Leer datos de localStorage</li>
+                        <li>Procesar respuesta de fetch</li>
+                        <li>Deserializar config JSON</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     7. JSON.stringify()
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2><code>JSON.stringify()</code> <span class="chip chip-green">valor JS → string</span></h2>
+    <div class="slide-body">
+        <p style="font-size:.7em; color:#94a3b8; margin:.2em 0 .5em"><code>JSON.stringify(valor, replacer, space)</code> — los 3 parámetros</p>
+        <pre><code class="javascript" data-trim data-line-numbers="1-6|8-11|13-16|18-22">const p = { id:1, nombre:'Laptop', precio:850, password:'secret', stock:12 };
+
+// Sin opciones — compacto
+JSON.stringify(p);
+// → {"id":1,"nombre":"Laptop","precio":850,"password":"secret","stock":12}
+
+// Con space — legible (2 espacios)
+JSON.stringify(p, null, 2);
+// {
+//   "id": 1,
+//   "nombre": "Laptop", ...
+
+// Replacer array — solo esos campos (lista blanca)
+JSON.stringify(p, ['id', 'nombre', 'precio']);
+// → {"id":1,"nombre":"Laptop","precio":850}
+// password y stock no aparecen
+
+// Replacer función — control total
+JSON.stringify(p, (k, v) => {
+    if (k === 'password') return undefined; // omitir
+    return v;
+});</code></pre>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     8. VALORES QUE STRINGIFY OMITE / TRANSFORMA
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>¿Qué omite <code>stringify</code>?</h2>
+    <div class="slide-body">
+        <div class="two-col" style="margin-top:.6rem">
+            <div>
+                <p style="font-size:.72em; color:#94a3b8; margin:0 0 .4em">Objeto con valores problemáticos</p>
+                <pre><code class="javascript" data-trim style="font-size:.68em">const obj = {
+  nombre:    'Test',
+  funcion:   () => 'hola',   // función
+  indefinido: undefined,      // undefined
+  simbolo:   Symbol('x'),    // Symbol
+  fecha:     new Date(),     // Date
+  nan:       NaN,            // NaN
+  infinito:  Infinity,       // Infinity
+  nulo:      null,           // null (sí aparece)
+};</code></pre>
+            </div>
+            <div>
+                <p style="font-size:.72em; color:#94a3b8; margin:0 0 .4em">Resultado de stringify</p>
+                <pre><code class="json" data-trim style="font-size:.68em">{
+  "nombre": "Test",
+  "fecha":  "2025-03-11T14:00:00.000Z",
+  "nan":    null,
+  "infinito": null,
+  "nulo":   null
+}
+// funcion → OMITIDA
+// indefinido → OMITIDA
+// simbolo → OMITIDA</code></pre>
+                <div class="tip" style="margin-top:.5rem">
+                    <strong>Deep clone con JSON:</strong><br>
+                    <code style="font-size:.85em">JSON.parse(JSON.stringify(obj))</code><br>
+                    Funciona para datos simples. Pierde funciones, Date real y undefined.
+                    Para casos complejos usar <code>structuredClone(obj)</code>.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     9. EJEMPLO COMPLETO: CICLO PARSE/STRINGIFY
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>Ejemplo completo</h2>
+    <div class="slide-body">
+        <p style="font-size:.72em; color:#94a3b8; margin:.2em 0 .5em">
+            Ciclo completo: objeto → stringify → transferencia → parse → modificar → stringify de nuevo
+        </p>
+        <pre><code class="javascript" data-trim data-line-numbers="1-5|7-9|11-15|17-19|21-24">// 1. Objeto JavaScript original
+const carrito = {
+    items: [{ id: 1, nombre: 'Laptop', cantidad: 1 }],
+    total: 850.00,
+};
+
+// 2. Serializar para enviar (o guardar en localStorage)
+const jsonString = JSON.stringify(carrito);
+localStorage.setItem('carrito', jsonString);
+
+// 3. Recuperar y deserializar (puede ser en otra función/página)
+const recuperado = JSON.parse(localStorage.getItem('carrito'));
+// recuperado es un nuevo objeto, independiente del original
+recuperado.items.push({ id: 2, nombre: 'Mouse', cantidad: 2 });
+recuperado.total += 25.50;
+
+// 4. Volver a serializar para enviar al servidor
+const payload = JSON.stringify(recuperado);
+// → {"items":[{"id":1,...},{"id":2,...}],"total":875.5}
+
+// 5. El servidor responde JSON → parsear la respuesta
+const res = await fetch('/api/carrito', { method:'POST', body: payload,
+    headers: {'Content-Type':'application/json'} });
+const confirmacion = await res.json(); // fetch tiene .json() que hace JSON.parse internamente</code></pre>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     10. COMPARATIVA DE FORMATOS — TABLA
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>Comparativa de formatos</h2>
+    <div class="slide-body" style="margin-top:.6rem">
+        <table class="cmp-table">
+            <thead>
+                <tr>
+                    <th>Característica</th>
+                    <th style="color:#38bdf8">JSON</th>
+                    <th style="color:#4ade80">XML</th>
+                    <th style="color:#fb923c">URL Encoded</th>
+                    <th style="color:#a78bfa">Multipart</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="fragment">
+                    <td>Legibilidad</td>
+                    <td>Alta</td>
+                    <td>Media</td>
+                    <td>Baja</td>
+                    <td>Muy baja</td>
+                </tr>
+                <tr class="fragment">
+                    <td>Tamaño</td>
+                    <td>Compacto</td>
+                    <td>Grande</td>
+                    <td>Muy compacto</td>
+                    <td>Variable</td>
+                </tr>
+                <tr class="fragment">
+                    <td>Tipos de datos</td>
+                    <td>6 tipos</td>
+                    <td>Solo strings</td>
+                    <td>Solo strings</td>
+                    <td>Strings + binarios</td>
+                </tr>
+                <tr class="fragment">
+                    <td>Anidamiento</td>
+                    <td>✓ Nativo</td>
+                    <td>✓ Etiquetas</td>
+                    <td>✗ Convención</td>
+                    <td>✗ No</td>
+                </tr>
+                <tr class="fragment">
+                    <td>Archivos</td>
+                    <td>✗ (base64)</td>
+                    <td>✗</td>
+                    <td>✗</td>
+                    <td>✓ Nativo</td>
+                </tr>
+                <tr class="fragment">
+                    <td>Content-Type</td>
+                    <td><code>application/json</code></td>
+                    <td><code>application/xml</code></td>
+                    <td><code>...urlencoded</code></td>
+                    <td><code>multipart/...</code></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     11. MISMO DATO EN 4 FORMATOS
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>El mismo dato · 4 formatos</h2>
+    <div class="slide-body">
+        <p style="font-size:.68em; color:#94a3b8; margin:.2em 0 .5em">
+            Datos: nombre=Juan | apellido=Pérez | edad=20 | hobbies=[música, deportes]
+        </p>
+        <div class="two-col">
+            <div>
+                <p style="color:#38bdf8; font-size:.7em; font-weight:700; margin:0 0 .2em">JSON</p>
+                <pre><code class="json" data-trim style="font-size:.62em">{
+  "nombre": "Juan",
+  "apellido": "Pérez",
+  "edad": 20,
+  "hobbies": ["música", "deportes"]
+}</code></pre>
+                <p style="color:#fb923c; font-size:.7em; font-weight:700; margin:.5em 0 .2em">URL Encoded</p>
+                <pre><code class="text" data-trim style="font-size:.62em">nombre=Juan&amp;apellido=P%C3%A9rez
+&amp;edad=20&amp;hobbies%5B%5D=m%C3%BAsica
+&amp;hobbies%5B%5D=deportes</code></pre>
+            </div>
+            <div>
+                <p style="color:#a78bfa; font-size:.7em; font-weight:700; margin:0 0 .2em">Multipart Form Data</p>
+                <pre><code class="text" data-trim style="font-size:.57em">--boundary123
+Content-Disposition: form-data; name="nombre"
+
+Juan
+--boundary123
+Content-Disposition: form-data; name="hobbies[]"
+
+música
+--boundary123--</code></pre>
+                <p style="color:#4ade80; font-size:.7em; font-weight:700; margin:.4em 0 .2em">XML</p>
+                <pre><code class="xml" data-trim style="font-size:.62em">&lt;persona&gt;
+  &lt;nombre&gt;Juan&lt;/nombre&gt;
+  &lt;apellido&gt;Pérez&lt;/apellido&gt;
+  &lt;edad&gt;20&lt;/edad&gt;
+  &lt;hobbies&gt;
+    &lt;hobby&gt;música&lt;/hobby&gt;
+  &lt;/hobbies&gt;
+&lt;/persona&gt;</code></pre>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     12. ¿CUÁNDO USAR CADA FORMATO?
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>¿Cuándo usar cada formato?</h2>
+    <div class="slide-body" style="margin-top:.8rem">
+        <div class="two-col">
+            <div>
+                <div class="card-slide card-blue fragment" style="margin-bottom:.6rem">
+                    <p style="color:#38bdf8; font-weight:700; font-size:.78em; margin:0 0 .3em">
+                        JSON <span class="chip chip-blue">application/json</span>
+                    </p>
+                    <ul style="font-size:.7em; margin:0; padding-left:1.1em; line-height:1.8">
+                        <li>APIs REST (casi siempre)</li>
+                        <li>Peticiones AJAX con fetch</li>
+                        <li>Datos estructurados anidados</li>
+                        <li>LocalStorage, sessionStorage</li>
+                    </ul>
+                </div>
+                <div class="card-slide card-orange fragment">
+                    <p style="color:#fb923c; font-weight:700; font-size:.78em; margin:0 0 .3em">
+                        URL Encoded <span class="chip chip-orange">x-www-form-urlencoded</span>
+                    </p>
+                    <ul style="font-size:.7em; margin:0; padding-left:1.1em; line-height:1.8">
+                        <li>Formularios HTML sin JS</li>
+                        <li>Datos simples clave=valor</li>
+                        <li>Parámetros en la URL (GET)</li>
+                    </ul>
+                </div>
+            </div>
+            <div>
+                <div class="card-slide card-purple fragment" style="margin-bottom:.6rem">
+                    <p style="color:#a78bfa; font-weight:700; font-size:.78em; margin:0 0 .3em">
+                        Multipart <span class="chip chip-purple">multipart/form-data</span>
+                    </p>
+                    <ul style="font-size:.7em; margin:0; padding-left:1.1em; line-height:1.8">
+                        <li>Formularios con subida de archivos</li>
+                        <li>Imágenes, PDFs, documentos</li>
+                        <li>Mezcla de texto y binarios</li>
+                    </ul>
+                </div>
+                <div class="card-slide card-green fragment">
+                    <p style="color:#4ade80; font-weight:700; font-size:.78em; margin:0 0 .3em">
+                        XML <span class="chip chip-green">application/xml</span>
+                    </p>
+                    <ul style="font-size:.7em; margin:0; padding-left:1.1em; line-height:1.8">
+                        <li>Integración con sistemas legacy</li>
+                        <li>SOAP / XML-RPC</li>
+                        <li>Documentos con metadatos ricos</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     13. json_encode() EN PHP
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2><code>json_encode()</code> en PHP</h2>
+    <div class="slide-body">
+        <div class="two-col" style="margin-top:.6rem">
+            <div>
+                <p style="font-size:.72em; color:#94a3b8; margin:0 0 .4em">Uso básico y opciones</p>
+                <pre><code class="php" data-trim data-line-numbers="1-6|8-14|16-20">$producto = [
+    'id'     => 1,
+    'nombre' => 'Laptop HP 15"',
+    'precio' => 850.00,
+    'tags'   => ['electrónica', 'oferta'],
+];
+
+// Compacto (default)
+echo json_encode($producto);
+
+// Legible + unicode + slashes
+echo json_encode(
+    $producto,
+    JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+);
+
+// Lanzar excepción en error (PHP 7.3+)
+$json = json_encode(
+    $datos,
+    JSON_THROW_ON_ERROR
+);</code></pre>
+            </div>
+            <div>
+                <p style="font-size:.72em; color:#94a3b8; margin:0 0 .4em">Opciones clave</p>
+                <table class="cmp-table">
+                    <thead><tr><th>Opción</th><th>Efecto</th></tr></thead>
+                    <tbody>
+                        <tr class="fragment"><td><code>JSON_PRETTY_PRINT</code></td><td>Indenta 4 espacios</td></tr>
+                        <tr class="fragment"><td><code>JSON_UNESCAPED_UNICODE</code></td><td>Mantiene é,ñ,ó sin \u</td></tr>
+                        <tr class="fragment"><td><code>JSON_UNESCAPED_SLASHES</code></td><td>Mantiene / sin \/</td></tr>
+                        <tr class="fragment"><td><code>JSON_THROW_ON_ERROR</code></td><td>Lanza JsonException</td></tr>
+                    </tbody>
+                </table>
+                <div class="tip fragment" style="margin-top:.5rem">
+                    <strong>Siempre</strong> enviar la cabecera antes de json_encode:<br>
+                    <code style="font-size:.9em">header('Content-Type: application/json; charset=utf-8');</code>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     14. json_decode() EN PHP
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2><code>json_decode()</code> en PHP</h2>
+    <div class="slide-body">
+        <div class="two-col" style="margin-top:.6rem">
+            <div>
+                <p style="font-size:.72em; color:#94a3b8; margin:0 0 .4em">Dos modos: array vs objeto</p>
+                <pre><code class="php" data-trim data-line-numbers="1-2|4-7|9-12|14-18">$json = '{"nombre":"Ana","cursos":["Mate","Física"]}';
+
+// Con true → array asociativo (recomendado para APIs)
+$arr = json_decode($json, true);
+echo $arr['nombre'];      // "Ana"
+echo $arr['cursos'][0];   // "Mate"
+
+// Sin true → objeto stdClass
+$obj = json_decode($json);
+echo $obj->nombre;        // "Ana"
+echo $obj->cursos[0];     // "Mate"
+
+// Siempre verificar errores
+if (json_last_error() !== JSON_ERROR_NONE) {
+    $msg = json_last_error_msg();
+    // Manejar el error...
+    http_response_code(400);
+    echo json_encode(['error' => $msg]);
+    exit;
+}</code></pre>
+            </div>
+            <div class="fragment">
+                <p style="font-size:.72em; color:#94a3b8; margin:0 0 .4em">Constantes de error</p>
+                <table class="cmp-table">
+                    <thead><tr><th>Constante</th><th>Descripción</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>JSON_ERROR_NONE</code></td><td>Sin errores (0)</td></tr>
+                        <tr><td><code>JSON_ERROR_SYNTAX</code></td><td>Sintaxis inválida</td></tr>
+                        <tr><td><code>JSON_ERROR_UTF8</code></td><td>Caracteres UTF-8 mal formados</td></tr>
+                        <tr><td><code>JSON_ERROR_DEPTH</code></td><td>Anidamiento muy profundo</td></tr>
+                    </tbody>
+                </table>
+                <div class="tip" style="margin-top:.5rem">
+                    Con <code>JSON_THROW_ON_ERROR</code> podés usar try/catch con
+                    <code>JsonException</code> en lugar de verificar manualmente.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     15. RECIBIR JSON EN PHP (php://input)
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>Recibir JSON en PHP</h2>
+    <div class="slide-body">
+        <p style="font-size:.72em; color:#94a3b8; margin:.2em 0 .5em">
+            Con <code>Content-Type: application/json</code>, el body NO llega en <code>$_POST</code>.
+            Hay que leerlo desde <code>php://input</code>.
+        </p>
+        <div class="two-col">
+            <div>
+                <p style="font-size:.7em; color:#38bdf8; margin:0 0 .3em">Cliente (JavaScript)</p>
+                <pre><code class="javascript" data-trim style="font-size:.68em">// fetch envía JSON en el body
+await fetch('api.php', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({
+        nombre: 'Laptop',
+        precio: 850,
+    }),
+});</code></pre>
+            </div>
+            <div>
+                <p style="font-size:.7em; color:#4ade80; margin:0 0 .3em">Servidor (PHP)</p>
+                <pre><code class="php" data-trim style="font-size:.68em">header('Content-Type: application/json');
+
+// 1. Leer el stream raw de entrada
+$raw = file_get_contents('php://input');
+
+if (empty($raw)) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Body vacío']);
+    exit;
+}
+
+// 2. Parsear
+$data = json_decode($raw, true);
+if (json_last_error() !== JSON_ERROR_NONE) {
+    http_response_code(400);
+    echo json_encode(['error' => json_last_error_msg()]);
+    exit;
+}
+
+// 3. Usar los datos
+echo json_encode(['nombre' => $data['nombre']]);
+exit;</code></pre>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     16. ANTI-PATRONES COMUNES
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>Anti-patrones comunes</h2>
+    <div class="slide-body" style="margin-top:.7rem">
+        <div class="antipattern">
+            <div class="card-slide card-red fragment" style="margin-bottom:.5rem; padding:.6rem .9rem">
+                <span class="bad">❌ No verificar si JSON.parse lanzó error</span><br>
+                <code class="bad" style="font-size:.82em">const d = JSON.parse(textoDelusuario);</code>
+                <span class="good"> ✅ </span><code class="good" style="font-size:.82em">try &#123; JSON.parse(...) &#125; catch(e) &#123; /* manejar */ &#125;</code>
+            </div>
+            <div class="card-slide card-red fragment" style="margin-bottom:.5rem; padding:.6rem .9rem">
+                <span class="bad">❌ No enviar Content-Type en PHP</span><br>
+                <code class="bad" style="font-size:.82em">echo json_encode($data); // sin header</code>
+                <span class="good"> ✅ </span><code class="good" style="font-size:.82em">header('Content-Type: application/json'); echo json_encode(...);</code>
+            </div>
+            <div class="card-slide card-red fragment" style="margin-bottom:.5rem; padding:.6rem .9rem">
+                <span class="bad">❌ Leer body JSON desde $_POST</span><br>
+                <code class="bad" style="font-size:.82em">$d = $_POST['nombre']; // nunca llega con application/json</code>
+                <span class="good"> ✅ </span><code class="good" style="font-size:.82em">$data = json_decode(file_get_contents('php://input'), true);</code>
+            </div>
+            <div class="card-slide card-red fragment" style="margin-bottom:.5rem; padding:.6rem .9rem">
+                <span class="bad">❌ Usar comillas simples en JSON manual</span><br>
+                <code class="bad" style="font-size:.82em">&#123;'nombre': 'Juan'&#125;</code>
+                <span class="good"> ✅ </span><code class="good" style="font-size:.82em">&#123;"nombre": "Juan"&#125;</code>
+            </div>
+            <div class="card-slide card-red fragment" style="padding:.6rem .9rem">
+                <span class="bad">❌ Usar deep clone con JSON para objetos con Date/funciones</span><br>
+                <code class="bad" style="font-size:.82em">JSON.parse(JSON.stringify(objConFecha)) // Date → string</code>
+                <span class="good"> ✅ </span><code class="good" style="font-size:.82em">structuredClone(obj) // o _.cloneDeep(obj)</code>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     17. RESUMEN + PRÓXIMA CLASE
+══════════════════════════════════════════════════════ -->
+<section data-background-gradient="linear-gradient(135deg,#0f172a 0%,#1a2a3a 100%)">
+    <h2>Resumen de la clase</h2>
+    <div class="slide-body" style="margin-top:.8rem">
+        <div class="three-col">
+            <div class="card-slide card-teal fragment">
+                <p style="color:#2dd4bf; font-weight:700; font-size:.8em; margin:0 0 .4em">JSON</p>
+                <ul style="font-size:.68em; margin:0; padding-left:1.1em; line-height:1.9">
+                    <li>6 tipos válidos</li>
+                    <li>Sintaxis estricta</li>
+                    <li>No JS object literal</li>
+                </ul>
+            </div>
+            <div class="card-slide card-blue fragment">
+                <p style="color:#38bdf8; font-weight:700; font-size:.8em; margin:0 0 .4em">JS</p>
+                <ul style="font-size:.68em; margin:0; padding-left:1.1em; line-height:1.9">
+                    <li>parse → try/catch</li>
+                    <li>stringify → replacer, space</li>
+                    <li>Omite fn, undefined, Symbol</li>
+                </ul>
+            </div>
+            <div class="card-slide card-green fragment">
+                <p style="color:#4ade80; font-weight:700; font-size:.8em; margin:0 0 .4em">PHP</p>
+                <ul style="font-size:.68em; margin:0; padding-left:1.1em; line-height:1.9">
+                    <li>json_encode / decode</li>
+                    <li>php://input para JSON POST</li>
+                    <li>json_last_error()</li>
+                </ul>
+            </div>
+        </div>
+        <div class="card-slide card-orange fragment" style="margin-top:.8rem; text-align:center; padding:1rem">
+            <p style="color:#fb923c; font-weight:700; font-size:.82em; margin:0 0 .3em">
+                Próxima clase — Clase 5
+            </p>
+            <p style="font-size:.72em; color:#cbd5e1; margin:0">
+                <strong>Envío de datos JSON con fetch (POST)</strong> · Promesas avanzadas · async/await ·
+                Promise.all() · Manejo de errores de red
+            </p>
+        </div>
+    </div>
+</section>
+
+</div><!-- /slides -->
+</div><!-- /reveal -->
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+<script>
+    Reveal.initialize({
+        hash:          true,
+        slideNumber:   'c/t',
+        transition:    'slide',
+        plugins:       [ RevealHighlight, RevealNotes ],
+        highlight:     { highlightOnLoad: true },
+    });
+</script>
+</body>
+</html>

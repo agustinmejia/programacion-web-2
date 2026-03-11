@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clase 4 — Explorador JSON</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background: #0f172a; color: #e2e8f0; }
+        .navbar-brand { font-weight: 700; color: #7dd3fc !important; }
+        .nav-tabs .nav-link { color: #94a3b8; border: none; }
+        .nav-tabs .nav-link.active { color: #7dd3fc; background: transparent; border-bottom: 2px solid #38bdf8; }
+        .nav-tabs { border-bottom: 1px solid #334155; }
+
+        /* Paneles y cards */
+        .panel { background: #1e293b; border: 1px solid #334155; border-radius: 10px; }
+        .panel-header { background: #0f172a; border-bottom: 1px solid #334155; padding: .6rem 1rem; border-radius: 10px 10px 0 0; font-size: .8rem; color: #94a3b8; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; }
+
+        /* Textareas */
+        textarea.json-area {
+            background: #0f172a;
+            color: #e2e8f0;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: .82rem;
+            line-height: 1.6;
+            resize: vertical;
+        }
+        textarea.json-area:focus { border-color: #38bdf8; box-shadow: 0 0 0 .2rem rgba(56,189,248,.15); background: #0f172a; color: #e2e8f0; }
+
+        /* Code blocks */
+        .code-block {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            padding: .8rem 1rem;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: .78rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-all;
+            color: #a5f3fc;
+            min-height: 80px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        /* Botones */
+        .btn-action { font-size: .82rem; font-weight: 600; }
+        .btn-dark-outline { background: transparent; border: 1px solid #475569; color: #94a3b8; font-size: .78rem; }
+        .btn-dark-outline:hover { background: #1e293b; color: #e2e8f0; border-color: #64748b; }
+
+        /* Badges de tipo */
+        .type-badge { font-size: .7rem; font-weight: 700; padding: .15em .55em; border-radius: 999px; }
+        .type-string  { background: #15803d; color: #d1fae5; }
+        .type-number  { background: #b45309; color: #fef3c7; }
+        .type-boolean { background: #7e22ce; color: #f3e8ff; }
+        .type-null    { background: #475569; color: #f1f5f9; }
+        .type-array   { background: #1d4ed8; color: #dbeafe; }
+        .type-object  { background: #0f766e; color: #ccfbf1; }
+
+        /* Info row */
+        .info-row { background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: .55rem .9rem; font-size: .78rem; color: #94a3b8; }
+        .info-row strong { color: #e2e8f0; }
+
+        /* Error */
+        .error-box { background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3); border-radius: 6px; padding: .5rem .9rem; font-size: .8rem; color: #fca5a5; display: none; }
+        .error-box.show { display: block; }
+
+        /* Formato comparativa */
+        .format-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .3rem; }
+        .format-json   { color: #38bdf8; }
+        .format-url    { color: #fb923c; }
+        .format-multi  { color: #a78bfa; }
+        .format-xml    { color: #4ade80; }
+
+        .size-badge { font-size: .72rem; font-weight: 700; padding: .1em .5em; border-radius: 999px; background: #1e293b; border: 1px solid #334155; color: #94a3b8; }
+
+        /* Tabla de comparativa */
+        .cmp-table { font-size: .8rem; }
+        .cmp-table th { background: #0f172a; color: #7dd3fc; font-weight: 600; }
+        .cmp-table td { background: #1e293b; border-color: #334155; }
+
+        /* API tab */
+        .product-table th { background: #0f172a; color: #7dd3fc; font-size: .78rem; }
+        .product-table td { background: #1e293b; border-color: #334155; font-size: .8rem; vertical-align: middle; }
+        .product-table tbody tr:hover td { background: #263349; }
+
+        /* JSON raw panel */
+        .raw-panel { background: #020617; border: 1px solid #1e3a5f; border-radius: 8px; padding: .7rem 1rem; }
+        .raw-panel pre { color: #a5f3fc; font-size: .75rem; margin: 0; white-space: pre-wrap; word-break: break-all; max-height: 200px; overflow-y: auto; }
+
+        /* Spinner */
+        .spinner-border-sm { width: 1rem; height: 1rem; }
+
+        /* Toast */
+        .toast-container { z-index: 1060; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark" style="background:#0f172a; border-bottom:1px solid #1e293b;">
+    <div class="container-fluid">
+        <span class="navbar-brand">
+            <i class="bi bi-braces me-2"></i>Explorador JSON — Clase 4
+        </span>
+        <span class="badge" style="background:#1e3a5f; color:#7dd3fc; font-size:.7rem;">Unidad 2 · Tema 2.5</span>
+    </div>
+</nav>
+
+<div class="container-fluid py-3 px-4">
+    <ul class="nav nav-tabs mb-3" id="mainTabs">
+        <li class="nav-item">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabExplorador">
+                <i class="bi bi-braces me-1"></i> Explorador JSON
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabComparativa">
+                <i class="bi bi-columns-gap me-1"></i> Comparativa de formatos
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabApi">
+                <i class="bi bi-box-seam me-1"></i> API de Productos
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+
+        <!-- ══════════════════════════════════════════════════════════════════
+             TAB 1 — EXPLORADOR JSON
+        ══════════════════════════════════════════════════════════════════ -->
+        <div class="tab-pane fade show active" id="tabExplorador">
+            <div class="row g-3">
+                <!-- Columna izquierda: JSON de entrada -->
+                <div class="col-lg-5">
+                    <div class="panel">
+                        <div class="panel-header">JSON de entrada</div>
+                        <div class="p-3">
+                            <textarea id="jsonInput" class="json-area w-100" rows="14" spellcheck="false">{
+  "alumno": {
+    "nombre": "Ana García",
+    "edad": 22,
+    "activa": true,
+    "beca": null,
+    "promedio": 8.75,
+    "materias": ["Matemáticas", "Física", "Programación"],
+    "direccion": {
+      "ciudad": "Cochabamba",
+      "pais": "Bolivia"
+    }
+  }
+}</textarea>
+                            <div id="inputError" class="error-box mt-2">
+                                <i class="bi bi-exclamation-triangle me-1"></i>
+                                <span id="inputErrorMsg"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna central: controles -->
+                <div class="col-lg-2 d-flex flex-column justify-content-center align-items-center gap-2">
+                    <button class="btn btn-primary btn-action w-100" onclick="parsearJSON()">
+                        <i class="bi bi-arrow-right-circle me-1"></i> Parsear →
+                    </button>
+                    <button class="btn btn-secondary btn-action w-100" onclick="stringifyJSON()">
+                        ← Stringify
+                    </button>
+                    <hr class="w-100" style="border-color:#334155;">
+                    <button class="btn btn-dark-outline w-100" onclick="formatearJSON()">
+                        <i class="bi bi-indent me-1"></i> Formatear
+                    </button>
+                    <button class="btn btn-dark-outline w-100" onclick="minificarJSON()">
+                        <i class="bi bi-dash-square me-1"></i> Minificar
+                    </button>
+                    <button class="btn btn-dark-outline w-100" onclick="validarJSON()">
+                        <i class="bi bi-check-circle me-1"></i> Validar
+                    </button>
+                    <button class="btn btn-dark-outline w-100" onclick="limpiarTodo()">
+                        <i class="bi bi-trash me-1"></i> Limpiar
+                    </button>
+                </div>
+
+                <!-- Columna derecha: resultado -->
+                <div class="col-lg-5">
+                    <div class="panel">
+                        <div class="panel-header">Resultado</div>
+                        <div class="p-3">
+                            <textarea id="jsonOutput" class="json-area w-100" rows="14" spellcheck="false" placeholder="El resultado aparecerá aquí..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info row -->
+            <div class="row g-3 mt-0">
+                <div class="col-12">
+                    <div class="info-row d-flex flex-wrap gap-3 align-items-center">
+                        <span>Tipo de entrada: <strong id="infoTipoEntrada">—</strong></span>
+                        <span>Tipo de resultado: <strong id="infoTipoResultado">—</strong></span>
+                        <span>Claves/items: <strong id="infoCount">—</strong></span>
+                        <span>Tamaño entrada: <strong id="infoSize">—</strong></span>
+                        <span id="validacionMsg" style="color:#4ade80; font-weight:600; display:none;">
+                            <i class="bi bi-check-circle me-1"></i>JSON válido
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección educativa: valores que stringify omite -->
+            <div class="row g-3 mt-2">
+                <div class="col-12">
+                    <div class="panel p-3">
+                        <h6 style="color:#7dd3fc; margin-bottom:.8rem;">
+                            <i class="bi bi-lightbulb me-1"></i> Valores que stringify omite o transforma
+                        </h6>
+                        <div class="row g-2" id="demoStringify">
+                            <div class="col-auto">
+                                <button class="btn btn-dark-outline btn-action" onclick="demoOmitir()">
+                                    Probar en resultado →
+                                </button>
+                            </div>
+                        </div>
+                        <div class="code-block mt-2" id="demoOutput" style="display:none;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════════════════════════
+             TAB 2 — COMPARATIVA DE FORMATOS
+        ══════════════════════════════════════════════════════════════════ -->
+        <div class="tab-pane fade" id="tabComparativa">
+            <div class="row g-3">
+                <!-- Formulario de entrada -->
+                <div class="col-lg-4">
+                    <div class="panel">
+                        <div class="panel-header">Datos del formulario</div>
+                        <div class="p-3">
+                            <div class="mb-2">
+                                <label class="form-label text-muted" style="font-size:.8rem;">Nombre</label>
+                                <input type="text" id="cmpNombre" class="form-control form-control-sm bg-dark text-white border-secondary" value="Juan">
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label text-muted" style="font-size:.8rem;">Apellido</label>
+                                <input type="text" id="cmpApellido" class="form-control form-control-sm bg-dark text-white border-secondary" value="Pérez">
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label text-muted" style="font-size:.8rem;">Edad</label>
+                                <input type="number" id="cmpEdad" class="form-control form-control-sm bg-dark text-white border-secondary" value="20">
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label text-muted" style="font-size:.8rem;">Email</label>
+                                <input type="email" id="cmpEmail" class="form-control form-control-sm bg-dark text-white border-secondary" value="juan.perez@uni.edu">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted" style="font-size:.8rem;">Hobbies</label>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="hMusica" value="música" checked>
+                                        <label class="form-check-label" style="font-size:.8rem;" for="hMusica">Música</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="hDeportes" value="deportes" checked>
+                                        <label class="form-check-label" style="font-size:.8rem;" for="hDeportes">Deportes</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="hLectura" value="lectura">
+                                        <label class="form-check-label" style="font-size:.8rem;" for="hLectura">Lectura</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="hGaming" value="gaming">
+                                        <label class="form-check-label" style="font-size:.8rem;" for="hGaming">Gaming</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary w-100" onclick="generarFormatos()">
+                                <i class="bi bi-arrow-repeat me-1"></i> Generar formatos
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resultados en 4 formatos -->
+                <div class="col-lg-8">
+                    <div class="row g-2">
+                        <!-- JSON -->
+                        <div class="col-md-6">
+                            <div class="panel">
+                                <div class="panel-header d-flex justify-content-between align-items-center">
+                                    <span class="format-json">JSON — application/json</span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="size-badge" id="sizeJson">0 bytes</span>
+                                        <button class="btn btn-dark-outline btn-sm" onclick="copiar('outJson', this)">
+                                            <i class="bi bi-clipboard"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="p-2">
+                                    <pre id="outJson" class="code-block" style="min-height:160px;"></pre>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- URL Encoded -->
+                        <div class="col-md-6">
+                            <div class="panel">
+                                <div class="panel-header d-flex justify-content-between align-items-center">
+                                    <span class="format-url">URL Encoded</span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="size-badge" id="sizeUrl">0 bytes</span>
+                                        <button class="btn btn-dark-outline btn-sm" onclick="copiar('outUrl', this)">
+                                            <i class="bi bi-clipboard"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="p-2">
+                                    <pre id="outUrl" class="code-block" style="min-height:160px;"></pre>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Multipart -->
+                        <div class="col-md-6">
+                            <div class="panel">
+                                <div class="panel-header d-flex justify-content-between align-items-center">
+                                    <span class="format-multi">Multipart Form Data</span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="size-badge" id="sizeMulti">0 bytes</span>
+                                        <button class="btn btn-dark-outline btn-sm" onclick="copiar('outMulti', this)">
+                                            <i class="bi bi-clipboard"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="p-2">
+                                    <pre id="outMulti" class="code-block" style="min-height:160px;"></pre>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- XML -->
+                        <div class="col-md-6">
+                            <div class="panel">
+                                <div class="panel-header d-flex justify-content-between align-items-center">
+                                    <span class="format-xml">XML — application/xml</span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="size-badge" id="sizeXml">0 bytes</span>
+                                        <button class="btn btn-dark-outline btn-sm" onclick="copiar('outXml', this)">
+                                            <i class="bi bi-clipboard"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="p-2">
+                                    <pre id="outXml" class="code-block" style="min-height:160px;"></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla comparativa de tamaños -->
+            <div class="row mt-3">
+                <div class="col-12">
+                    <div class="panel p-3">
+                        <h6 style="color:#7dd3fc; margin-bottom:.8rem;">Comparativa de tamaños (bytes)</h6>
+                        <table class="table cmp-table table-bordered mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Formato</th>
+                                    <th>Content-Type</th>
+                                    <th>Tamaño</th>
+                                    <th>Tipos de datos</th>
+                                    <th>Anidamiento</th>
+                                    <th>Ideal para</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="format-json fw-bold">JSON</span></td>
+                                    <td><code>application/json</code></td>
+                                    <td id="rowSizeJson">—</td>
+                                    <td>6 tipos nativos</td>
+                                    <td><i class="bi bi-check-circle-fill text-success"></i> Sí</td>
+                                    <td>APIs REST, AJAX</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="format-url fw-bold">URL Encoded</span></td>
+                                    <td><code>application/x-www-form-urlencoded</code></td>
+                                    <td id="rowSizeUrl">—</td>
+                                    <td>Solo strings</td>
+                                    <td><i class="bi bi-x-circle-fill text-danger"></i> No</td>
+                                    <td>Formularios simples</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="format-multi fw-bold">Multipart</span></td>
+                                    <td><code>multipart/form-data</code></td>
+                                    <td id="rowSizeMulti">—</td>
+                                    <td>Strings + binarios</td>
+                                    <td><i class="bi bi-x-circle-fill text-danger"></i> No</td>
+                                    <td>Subir archivos</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="format-xml fw-bold">XML</span></td>
+                                    <td><code>application/xml</code></td>
+                                    <td id="rowSizeXml">—</td>
+                                    <td>Solo strings</td>
+                                    <td><i class="bi bi-check-circle-fill text-success"></i> Sí</td>
+                                    <td>Sistemas legacy</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════════════════════════
+             TAB 3 — API DE PRODUCTOS
+        ══════════════════════════════════════════════════════════════════ -->
+        <div class="tab-pane fade" id="tabApi">
+            <div class="row g-3">
+                <!-- Columna principal -->
+                <div class="col-lg-8">
+                    <!-- Controles GET -->
+                    <div class="panel mb-3">
+                        <div class="panel-header">Operaciones GET</div>
+                        <div class="p-3 d-flex flex-wrap gap-2 align-items-end">
+                            <button class="btn btn-primary btn-action" onclick="apiCargarTodos()">
+                                <i class="bi bi-arrow-clockwise me-1"></i> Cargar todos
+                            </button>
+                            <div class="input-group" style="width:auto; min-width:200px;">
+                                <input type="number" id="inputId" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="ID del producto">
+                                <button class="btn btn-outline-info btn-sm" onclick="apiBuscarPorId()">
+                                    <i class="bi bi-search"></i> Buscar
+                                </button>
+                            </div>
+                            <div class="input-group" style="width:auto; min-width:200px;">
+                                <select id="selectCategoria" class="form-select form-select-sm bg-dark text-white border-secondary">
+                                    <option value="">Todas las categorías</option>
+                                    <option value="electrónica">Electrónica</option>
+                                    <option value="librería">Librería</option>
+                                    <option value="accesorios">Accesorios</option>
+                                </select>
+                                <button class="btn btn-outline-warning btn-sm" onclick="apiFiltrar()">
+                                    <i class="bi bi-funnel"></i> Filtrar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de resultados -->
+                    <div class="panel mb-3">
+                        <div class="panel-header d-flex justify-content-between align-items-center">
+                            <span>Resultados</span>
+                            <span id="apiContador" class="badge" style="background:#1e3a5f; color:#7dd3fc; font-size:.7rem;">0 productos</span>
+                        </div>
+                        <div class="p-2">
+                            <div id="apiSpinner" class="text-center py-4" style="display:none;">
+                                <div class="spinner-border text-info" role="status">
+                                    <span class="visually-hidden">Cargando...</span>
+                                </div>
+                                <div class="mt-2 text-muted" style="font-size:.8rem;">Cargando productos...</div>
+                            </div>
+                            <div id="apiError" class="alert alert-danger py-2 mb-2" style="display:none; font-size:.82rem;"></div>
+                            <div class="table-responsive">
+                                <table class="table product-table mb-0" style="display:none;" id="productTable">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Nombre</th>
+                                            <th>Categoría</th>
+                                            <th>Precio</th>
+                                            <th>Stock</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="productTbody"></tbody>
+                                </table>
+                            </div>
+                            <div id="emptyMsg" class="text-center text-muted py-3" style="display:none; font-size:.82rem;">
+                                No hay productos para mostrar.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Formulario POST -->
+                    <div class="panel">
+                        <div class="panel-header">Agregar producto (POST)</div>
+                        <div class="p-3">
+                            <form id="formAgregar" onsubmit="apiAgregar(event)">
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted" style="font-size:.8rem;">Nombre *</label>
+                                        <input type="text" id="pNombre" class="form-control form-control-sm bg-dark text-white border-secondary" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted" style="font-size:.8rem;">Categoría</label>
+                                        <input type="text" id="pCategoria" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="electrónica, librería...">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted" style="font-size:.8rem;">Precio *</label>
+                                        <input type="number" id="pPrecio" step="0.01" min="0" class="form-control form-control-sm bg-dark text-white border-secondary" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted" style="font-size:.8rem;">Stock</label>
+                                        <input type="number" id="pStock" min="0" value="0" class="form-control form-control-sm bg-dark text-white border-secondary">
+                                    </div>
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-success btn-action" id="btnAgregar">
+                                            <i class="bi bi-plus-circle me-1"></i> Agregar producto
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                            <div id="agregarMsg" class="mt-2" style="display:none;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna lateral: JSON raw -->
+                <div class="col-lg-4">
+                    <div class="panel" style="position: sticky; top: 1rem;">
+                        <div class="panel-header">
+                            <i class="bi bi-send me-1"></i> Última petición enviada
+                        </div>
+                        <div class="p-2">
+                            <div class="raw-panel mb-1">
+                                <div style="font-size:.68rem; color:#475569; margin-bottom:.3rem;">
+                                    <span id="rawMethod" class="badge bg-secondary me-1">—</span>
+                                    <span id="rawUrl" style="color:#64748b;"></span>
+                                </div>
+                                <pre id="rawRequest">No hay peticiones aún.</pre>
+                            </div>
+                        </div>
+                        <div class="panel-header">
+                            <i class="bi bi-inbox me-1"></i> Última respuesta recibida
+                        </div>
+                        <div class="p-2">
+                            <div class="raw-panel">
+                                <div style="font-size:.68rem; color:#475569; margin-bottom:.3rem;">
+                                    Status: <span id="rawStatus" class="badge bg-secondary">—</span>
+                                </div>
+                                <pre id="rawResponse">No hay respuestas aún.</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /tab-content -->
+</div><!-- /container -->
+
+<!-- Toast -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="toastMsg" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive">
+        <div class="d-flex">
+            <div class="toast-body" id="toastBody"></div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// ═════════════════════════════════════════════════════════════════════════════
+// TAB 1 — EXPLORADOR JSON
+// ═════════════════════════════════════════════════════════════════════════════
+
+function getTipoJS(valor) {
+    if (valor === null) return 'null';
+    if (Array.isArray(valor)) return 'array';
+    return typeof valor;
+}
+
+function actualizarInfo(entrada, resultado) {
+    const tipoEnt = getTipoJS(entrada);
+    const tipoRes = resultado !== undefined ? getTipoJS(resultado) : '—';
+
+    document.getElementById('infoTipoEntrada').textContent = tipoEnt;
+    document.getElementById('infoTipoResultado').textContent = tipoRes;
+
+    let count = '—';
+    if (resultado !== null && resultado !== undefined) {
+        if (Array.isArray(resultado)) count = resultado.length + ' items';
+        else if (typeof resultado === 'object') count = Object.keys(resultado).length + ' claves';
+    }
+    document.getElementById('infoCount').textContent = count;
+
+    const inputStr = document.getElementById('jsonInput').value;
+    document.getElementById('infoSize').textContent = new Blob([inputStr]).size + ' bytes';
+}
+
+function mostrarError(msg) {
+    const box = document.getElementById('inputError');
+    document.getElementById('inputErrorMsg').textContent = msg;
+    box.classList.add('show');
+    document.getElementById('validacionMsg').style.display = 'none';
+}
+
+function ocultarError() {
+    document.getElementById('inputError').classList.remove('show');
+}
+
+function parsearJSON() {
+    const inputStr = document.getElementById('jsonInput').value.trim();
+    ocultarError();
+    document.getElementById('validacionMsg').style.display = 'none';
+
+    try {
+        const parsed = JSON.parse(inputStr);
+        const bonito = JSON.stringify(parsed, null, 2);
+        document.getElementById('jsonOutput').value = bonito;
+        actualizarInfo(parsed, parsed);
+    } catch (e) {
+        mostrarError('SyntaxError: ' + e.message);
+        document.getElementById('jsonOutput').value = '';
+        actualizarInfo(inputStr, undefined);
+    }
+}
+
+function stringifyJSON() {
+    const outputStr = document.getElementById('jsonOutput').value.trim();
+    if (!outputStr) {
+        mostrarError('El panel de resultado está vacío.');
+        return;
+    }
+    try {
+        const parsed = JSON.parse(outputStr);
+        const compact = JSON.stringify(parsed);
+        document.getElementById('jsonInput').value = compact;
+        ocultarError();
+        actualizarInfo(parsed, parsed);
+    } catch (e) {
+        mostrarError('El resultado no es JSON válido: ' + e.message);
+    }
+}
+
+function formatearJSON() {
+    const inputStr = document.getElementById('jsonInput').value.trim();
+    ocultarError();
+    try {
+        const parsed = JSON.parse(inputStr);
+        document.getElementById('jsonInput').value = JSON.stringify(parsed, null, 2);
+        document.getElementById('jsonOutput').value = JSON.stringify(parsed, null, 2);
+        actualizarInfo(parsed, parsed);
+    } catch (e) {
+        mostrarError('No se puede formatear: ' + e.message);
+    }
+}
+
+function minificarJSON() {
+    const inputStr = document.getElementById('jsonInput').value.trim();
+    ocultarError();
+    try {
+        const parsed = JSON.parse(inputStr);
+        const compact = JSON.stringify(parsed);
+        document.getElementById('jsonInput').value = compact;
+        document.getElementById('jsonOutput').value = compact;
+        actualizarInfo(parsed, parsed);
+    } catch (e) {
+        mostrarError('No se puede minificar: ' + e.message);
+    }
+}
+
+function validarJSON() {
+    const inputStr = document.getElementById('jsonInput').value.trim();
+    ocultarError();
+    try {
+        const parsed = JSON.parse(inputStr);
+        document.getElementById('validacionMsg').style.display = 'inline';
+        actualizarInfo(parsed, parsed);
+        mostrarToast('JSON válido ✓', 'success');
+    } catch (e) {
+        mostrarError('JSON inválido: ' + e.message);
+        mostrarToast('JSON inválido: ' + e.message, 'danger');
+    }
+}
+
+function limpiarTodo() {
+    document.getElementById('jsonInput').value = '';
+    document.getElementById('jsonOutput').value = '';
+    ocultarError();
+    document.getElementById('validacionMsg').style.display = 'none';
+    document.getElementById('infoTipoEntrada').textContent = '—';
+    document.getElementById('infoTipoResultado').textContent = '—';
+    document.getElementById('infoCount').textContent = '—';
+    document.getElementById('infoSize').textContent = '—';
+    document.getElementById('demoOutput').style.display = 'none';
+}
+
+function demoOmitir() {
+    const obj = {
+        nombre: 'Test',
+        funcion: () => 'hola',
+        indefinido: undefined,
+        simbolo: Symbol('x'),
+        fecha: new Date('2025-03-11T10:00:00Z'),
+        nan: NaN,
+        infinito: Infinity,
+        nulo: null,
+        numero: 42,
+    };
+
+    const serializado = JSON.stringify(obj, null, 2);
+    const div = document.getElementById('demoOutput');
+    div.style.display = 'block';
+    div.textContent =
+        '// Objeto original tiene: nombre, funcion, indefinido, simbolo, fecha, nan, infinito, nulo, numero\n\n' +
+        '// Resultado de JSON.stringify(obj, null, 2):\n' +
+        serializado + '\n\n' +
+        '// → funcion, indefinido y simbolo fueron OMITIDOS\n' +
+        '// → nan e infinito se convirtieron a null\n' +
+        '// → fecha se convirtió a string ISO 8601';
+
+    document.getElementById('jsonOutput').value = serializado;
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// TAB 2 — COMPARATIVA DE FORMATOS
+// ═════════════════════════════════════════════════════════════════════════════
+
+function generarFormatos() {
+    const nombre   = document.getElementById('cmpNombre').value.trim();
+    const apellido = document.getElementById('cmpApellido').value.trim();
+    const edad     = document.getElementById('cmpEdad').value.trim();
+    const email    = document.getElementById('cmpEmail').value.trim();
+
+    const checkboxes = document.querySelectorAll('#tabComparativa input[type=checkbox]:checked');
+    const hobbies = Array.from(checkboxes).map(cb => cb.value);
+
+    // ── JSON ─────────────────────────────────────────────────────────────────
+    const dataObj = { nombre, apellido, edad: parseInt(edad) || 0, email, hobbies };
+    const jsonStr = JSON.stringify(dataObj, null, 2);
+    document.getElementById('outJson').textContent = jsonStr;
+
+    // ── URL Encoded ───────────────────────────────────────────────────────────
+    const params = new URLSearchParams();
+    params.append('nombre', nombre);
+    params.append('apellido', apellido);
+    params.append('edad', edad);
+    params.append('email', email);
+    hobbies.forEach(h => params.append('hobbies[]', h));
+    const urlStr = params.toString();
+    document.getElementById('outUrl').textContent = urlStr;
+
+    // ── Multipart Form Data ───────────────────────────────────────────────────
+    const boundary = 'boundary' + Math.random().toString(36).substr(2, 8).toUpperCase();
+    let multiStr = '';
+    const fields = { nombre, apellido, edad, email };
+    for (const [key, val] of Object.entries(fields)) {
+        multiStr += `--${boundary}\r\nContent-Disposition: form-data; name="${key}"\r\n\r\n${val}\r\n`;
+    }
+    hobbies.forEach(h => {
+        multiStr += `--${boundary}\r\nContent-Disposition: form-data; name="hobbies[]"\r\n\r\n${h}\r\n`;
+    });
+    multiStr += `--${boundary}--`;
+    document.getElementById('outMulti').textContent = multiStr;
+
+    // ── XML ───────────────────────────────────────────────────────────────────
+    const hobbiesXml = hobbies.map(h => `        <hobby>${h}</hobby>`).join('\n');
+    const xmlStr =
+        `<?xml version="1.0" encoding="UTF-8"?>\n<persona>\n` +
+        `    <nombre>${nombre}</nombre>\n` +
+        `    <apellido>${apellido}</apellido>\n` +
+        `    <edad>${edad}</edad>\n` +
+        `    <email>${email}</email>\n` +
+        (hobbies.length > 0
+            ? `    <hobbies>\n${hobbiesXml}\n    </hobbies>\n`
+            : `    <hobbies/>\n`) +
+        `</persona>`;
+    document.getElementById('outXml').textContent = xmlStr;
+
+    // ── Tamaños ───────────────────────────────────────────────────────────────
+    const sizeJson  = new Blob([jsonStr]).size;
+    const sizeUrl   = new Blob([urlStr]).size;
+    const sizeMulti = new Blob([multiStr]).size;
+    const sizeXml   = new Blob([xmlStr]).size;
+
+    document.getElementById('sizeJson').textContent  = sizeJson  + ' bytes';
+    document.getElementById('sizeUrl').textContent   = sizeUrl   + ' bytes';
+    document.getElementById('sizeMulti').textContent = sizeMulti + ' bytes';
+    document.getElementById('sizeXml').textContent   = sizeXml   + ' bytes';
+
+    document.getElementById('rowSizeJson').textContent  = sizeJson  + ' bytes';
+    document.getElementById('rowSizeUrl').textContent   = sizeUrl   + ' bytes';
+    document.getElementById('rowSizeMulti').textContent = sizeMulti + ' bytes';
+    document.getElementById('rowSizeXml').textContent   = sizeXml   + ' bytes';
+}
+
+function copiar(elementId, btn) {
+    const text = document.getElementById(elementId).textContent;
+    navigator.clipboard.writeText(text).then(() => {
+        const original = btn.innerHTML;
+        btn.innerHTML = '<i class="bi bi-check2"></i>';
+        btn.classList.add('text-success');
+        setTimeout(() => {
+            btn.innerHTML = original;
+            btn.classList.remove('text-success');
+        }, 1500);
+    });
+}
+
+// Generar al cargar
+document.addEventListener('DOMContentLoaded', () => {
+    generarFormatos();
+    apiCargarTodos();
+});
+
+// ═════════════════════════════════════════════════════════════════════════════
+// TAB 3 — API DE PRODUCTOS
+// ═════════════════════════════════════════════════════════════════════════════
+
+const API_URL = 'api.php';
+
+function mostrarSpinner(visible) {
+    document.getElementById('apiSpinner').style.display  = visible ? 'block' : 'none';
+    document.getElementById('productTable').style.display = visible ? 'none'  : 'table';
+    document.getElementById('apiError').style.display    = 'none';
+    document.getElementById('emptyMsg').style.display    = 'none';
+}
+
+function mostrarProductos(lista) {
+    const tbody = document.getElementById('productTbody');
+    document.getElementById('apiContador').textContent = lista.length + ' producto' + (lista.length !== 1 ? 's' : '');
+
+    if (lista.length === 0) {
+        document.getElementById('productTable').style.display = 'none';
+        document.getElementById('emptyMsg').style.display = 'block';
+        return;
+    }
+
+    document.getElementById('productTable').style.display = 'table';
+    document.getElementById('emptyMsg').style.display = 'none';
+
+    tbody.innerHTML = lista.map(p => `
+        <tr>
+            <td><code>${p.id}</code></td>
+            <td>${p.nombre}</td>
+            <td><span class="badge bg-secondary">${p.categoria}</span></td>
+            <td><strong style="color:#4ade80;">$${parseFloat(p.precio).toFixed(2)}</strong></td>
+            <td>${p.stock}</td>
+            <td>
+                <button class="btn btn-outline-danger btn-sm" onclick="apiEliminar(${p.id})">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function registrarRaw(method, url, requestBody, statusCode, responseBody) {
+    document.getElementById('rawMethod').textContent = method;
+    document.getElementById('rawMethod').className = 'badge me-1 ' + (
+        method === 'GET' ? 'bg-info text-dark' :
+        method === 'POST' ? 'bg-success' :
+        method === 'PUT' ? 'bg-warning text-dark' :
+        method === 'DELETE' ? 'bg-danger' : 'bg-secondary'
+    );
+    document.getElementById('rawUrl').textContent = url;
+    document.getElementById('rawRequest').textContent = requestBody
+        ? JSON.stringify(JSON.parse(requestBody), null, 2)
+        : '(sin body)';
+    document.getElementById('rawStatus').textContent = statusCode;
+    document.getElementById('rawStatus').className = 'badge ' + (statusCode < 300 ? 'bg-success' : statusCode < 400 ? 'bg-warning text-dark' : 'bg-danger');
+    document.getElementById('rawResponse').textContent = typeof responseBody === 'string'
+        ? responseBody
+        : JSON.stringify(responseBody, null, 2);
+}
+
+async function apiCargarTodos() {
+    mostrarSpinner(true);
+    const url = API_URL;
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+        registrarRaw('GET', url, null, res.status, data);
+        mostrarSpinner(false);
+        if (res.ok) {
+            mostrarProductos(data.data || []);
+        } else {
+            document.getElementById('apiError').textContent = data.error || 'Error desconocido';
+            document.getElementById('apiError').style.display = 'block';
+            document.getElementById('productTable').style.display = 'none';
+        }
+    } catch (e) {
+        mostrarSpinner(false);
+        document.getElementById('apiError').textContent = 'Error de red: ' + e.message;
+        document.getElementById('apiError').style.display = 'block';
+        document.getElementById('productTable').style.display = 'none';
+    }
+}
+
+async function apiBuscarPorId() {
+    const id = document.getElementById('inputId').value.trim();
+    if (!id) { mostrarToast('Ingresá un ID', 'warning'); return; }
+    mostrarSpinner(true);
+    const url = `${API_URL}?id=${id}`;
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+        registrarRaw('GET', url, null, res.status, data);
+        mostrarSpinner(false);
+        if (res.ok) {
+            mostrarProductos([data.data]);
+        } else {
+            document.getElementById('apiError').textContent = data.error;
+            document.getElementById('apiError').style.display = 'block';
+            document.getElementById('productTable').style.display = 'none';
+        }
+    } catch (e) {
+        mostrarSpinner(false);
+        document.getElementById('apiError').textContent = 'Error de red: ' + e.message;
+        document.getElementById('apiError').style.display = 'block';
+        document.getElementById('productTable').style.display = 'none';
+    }
+}
+
+async function apiFiltrar() {
+    const cat = document.getElementById('selectCategoria').value;
+    if (!cat) { apiCargarTodos(); return; }
+    mostrarSpinner(true);
+    const url = `${API_URL}?categoria=${encodeURIComponent(cat)}`;
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+        registrarRaw('GET', url, null, res.status, data);
+        mostrarSpinner(false);
+        if (res.ok) {
+            mostrarProductos(data.data || []);
+        } else {
+            document.getElementById('apiError').textContent = data.error;
+            document.getElementById('apiError').style.display = 'block';
+            document.getElementById('productTable').style.display = 'none';
+        }
+    } catch (e) {
+        mostrarSpinner(false);
+        document.getElementById('apiError').textContent = 'Error de red: ' + e.message;
+        document.getElementById('apiError').style.display = 'block';
+        document.getElementById('productTable').style.display = 'none';
+    }
+}
+
+async function apiAgregar(e) {
+    e.preventDefault();
+    const body = {
+        nombre:    document.getElementById('pNombre').value.trim(),
+        categoria: document.getElementById('pCategoria').value.trim() || 'sin categoría',
+        precio:    parseFloat(document.getElementById('pPrecio').value),
+        stock:     parseInt(document.getElementById('pStock').value) || 0,
+    };
+    const bodyStr = JSON.stringify(body);
+    const btn = document.getElementById('btnAgregar');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Agregando...';
+
+    try {
+        const res = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: bodyStr,
+        });
+        const data = await res.json();
+        registrarRaw('POST', API_URL, bodyStr, res.status, data);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-plus-circle me-1"></i> Agregar producto';
+
+        const msgDiv = document.getElementById('agregarMsg');
+        if (res.ok) {
+            msgDiv.innerHTML = `<div class="alert alert-success py-2" style="font-size:.82rem;"><i class="bi bi-check-circle me-1"></i>${data.message}</div>`;
+            msgDiv.style.display = 'block';
+            document.getElementById('formAgregar').reset();
+            mostrarToast('Producto agregado (código 201)', 'success');
+            // Recargar la tabla para mostrar el nuevo producto
+            apiCargarTodos();
+        } else {
+            msgDiv.innerHTML = `<div class="alert alert-danger py-2" style="font-size:.82rem;">${data.error}</div>`;
+            msgDiv.style.display = 'block';
+        }
+        setTimeout(() => { msgDiv.style.display = 'none'; }, 4000);
+    } catch (err) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-plus-circle me-1"></i> Agregar producto';
+        mostrarToast('Error de red: ' + err.message, 'danger');
+    }
+}
+
+async function apiEliminar(id) {
+    if (!confirm(`¿Eliminar el producto con id=${id}?`)) return;
+    const url = `${API_URL}?id=${id}`;
+    try {
+        const res = await fetch(url, { method: 'DELETE' });
+        const data = await res.json();
+        registrarRaw('DELETE', url, null, res.status, data);
+        if (res.ok) {
+            mostrarToast(data.message, 'success');
+            apiCargarTodos();
+        } else {
+            mostrarToast(data.error, 'danger');
+        }
+    } catch (e) {
+        mostrarToast('Error de red: ' + e.message, 'danger');
+    }
+}
+
+// ─── Toast helper ─────────────────────────────────────────────────────────────
+function mostrarToast(msg, tipo) {
+    const el = document.getElementById('toastMsg');
+    el.className = `toast align-items-center text-white border-0 bg-${tipo}`;
+    document.getElementById('toastBody').textContent = msg;
+    const toast = new bootstrap.Toast(el, { delay: 3000 });
+    toast.show();
+}
+</script>
+</body>
+</html>
