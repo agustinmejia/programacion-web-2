@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+    <script>
+        // Con fetch, el código no se detiene a esperar la respuesta de la petición, sino que continúa ejecutándose. Por eso, el orden de los logs en la consola será:
+        // console.log('antes del fetch')
+        // fetch('https://api.github.com/users/octocat')
+        //     .then(res => res.json())
+        //     .then(data => {
+        //         console.log('Respuesta: ',data);
+        //     })
+        //     .catch(err => {
+        //         console.error(err);
+        //     });
+        // console.log('después del fetch')
+
+        // con async/await, el código se detiene a esperar la respuesta de la petición, por lo que el orden de los logs en la consola será:
+        console.log('antes del fetch')
+        fetchData();
+        console.log('después del fetch')
+
+
+        async function fetchData() {
+            try {
+                const res = await fetch('https://api.github.com/users/octocat');
+                const data = await res.json();
+                console.log('Respuesta: ',data);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    </script>
+</body>
+</html>

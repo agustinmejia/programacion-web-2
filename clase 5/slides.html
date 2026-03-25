@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clase 5 — Formularios HTML y PHP</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/night.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/monokai.css">
+    <style>
+        :root {
+            --r-heading-color: #7dd3fc;
+            --r-link-color: #38bdf8;
+        }
+
+        .slide-body   { text-align: left; }
+        .slide-center { text-align: center; }
+
+        .reveal .slides h1,
+        .reveal .slides h2 { text-align: center; }
+
+        .chip {
+            display: inline-block;
+            padding: .18em .65em;
+            border-radius: 999px;
+            font-size: .6em;
+            font-weight: 700;
+            vertical-align: middle;
+            margin: .1em .2em;
+        }
+        .chip-blue   { background: #1d4ed8; color: #e0f2fe; }
+        .chip-green  { background: #15803d; color: #dcfce7; }
+        .chip-orange { background: #b45309; color: #fef3c7; }
+        .chip-purple { background: #7e22ce; color: #f3e8ff; }
+        .chip-red    { background: #b91c1c; color: #fee2e2; }
+        .chip-teal   { background: #0f766e; color: #ccfbf1; }
+
+        .two-col   { display: flex; gap: 1.2rem; }
+        .two-col > * { flex: 1 1 0; min-width: 0; }
+
+        .three-col { display: flex; gap: .8rem; }
+        .three-col > * { flex: 1 1 0; min-width: 0; }
+
+        .card-slide {
+            background: rgba(255,255,255,.07);
+            border-radius: 10px;
+            padding: .8rem 1rem;
+            border-left: 4px solid;
+        }
+        .card-blue   { border-color: #38bdf8; }
+        .card-green  { border-color: #4ade80; }
+        .card-orange { border-color: #fb923c; }
+        .card-purple { border-color: #a78bfa; }
+        .card-red    { border-color: #f87171; }
+        .card-teal   { border-color: #2dd4bf; }
+
+        .reveal pre { box-shadow: none; width: 100%; margin: .6rem 0; }
+        .reveal pre code { max-height: 380px; font-size: .68em; line-height: 1.5; }
+
+        .tip {
+            background: rgba(250,204,21,.1);
+            border: 1px solid rgba(250,204,21,.35);
+            border-radius: 8px;
+            padding: .55rem .9rem;
+            margin-top: .7rem;
+            font-size: .75em;
+        }
+        .tip strong { color: #fde047; }
+
+        .warn {
+            background: rgba(239,68,68,.1);
+            border: 1px solid rgba(239,68,68,.3);
+            border-radius: 8px;
+            padding: .45rem .85rem;
+            margin-top: .6rem;
+            font-size: .72em;
+            color: #fca5a5;
+        }
+
+        .good {
+            background: rgba(74,222,128,.1);
+            border: 1px solid rgba(74,222,128,.3);
+            border-radius: 8px;
+            padding: .45rem .85rem;
+            margin-top: .6rem;
+            font-size: .72em;
+            color: #86efac;
+        }
+
+        .cmp-table { width: 100%; border-collapse: collapse; font-size: .68em; margin-top: .8rem; }
+        .cmp-table th { color: #7dd3fc; padding: .35em .6em; border-bottom: 1px solid rgba(255,255,255,.2); text-align: left; }
+        .cmp-table td { padding: .3em .6em; }
+        .cmp-table tr:nth-child(even) td { background: rgba(255,255,255,.05); }
+
+        .step { display: flex; align-items: flex-start; gap: .7rem; margin-bottom: .55rem; }
+        .step-num {
+            background: #1d4ed8; color: #e0f2fe; border-radius: 50%;
+            min-width: 1.7em; height: 1.7em; display: flex;
+            align-items: center; justify-content: center;
+            font-weight: 700; font-size: .78em; flex-shrink: 0; margin-top: .05em;
+        }
+        .step-body { font-size: .78em; line-height: 1.5; }
+
+        .flow-arrow {
+            text-align: center;
+            font-size: 1.6em;
+            color: #38bdf8;
+            margin: .2rem 0;
+        }
+        .flow-box {
+            background: rgba(255,255,255,.07);
+            border-radius: 8px;
+            padding: .45rem .9rem;
+            text-align: center;
+            font-size: .74em;
+        }
+    </style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ══════════════════════════════════════════════════════
+     1. PORTADA
+══════════════════════════════════════════════════════ -->
+<section data-background-gradient="linear-gradient(135deg,#0f172a 0%,#1a2a3a 100%)">
+    <div class="slide-center" style="padding: 2rem 0">
+        <p style="color:#94a3b8; font-size:.65em; letter-spacing:.15em; text-transform:uppercase; margin:0 0 .5em">
+            Programación Web II · Unidad 2 · Temas 2.5 + 2.6
+        </p>
+        <h1 style="font-size:2.4em; margin:.2em 0; color:#a5f3fc; letter-spacing:-.02em">
+            Formularios HTML
+        </h1>
+        <h2 style="font-size:1.1em; color:#7dd3fc; font-weight:400; margin:.3em 0 1.5em">
+            Envío de datos y procesamiento con PHP
+        </h2>
+        <div>
+            <span class="chip chip-blue">$_POST</span>
+            <span class="chip chip-green">$_GET</span>
+            <span class="chip chip-orange">Validaciones</span>
+            <span class="chip chip-teal">htmlspecialchars</span>
+            <span class="chip chip-purple">fetch (complementario)</span>
+        </div>
+        <p style="margin-top:2.5rem; color:#475569; font-size:.6em">
+            Clase 5 · Semana 2 · Universidad Privada del Valle
+        </p>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     2. AGENDA
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>Agenda de la clase</h2>
+    <div class="slide-body" style="margin-top:1.2rem">
+        <div class="three-col">
+            <div class="card-slide card-blue fragment">
+                <div style="text-align:center; font-size:1.3em">📋</div>
+                <div style="text-align:center; color:#38bdf8; font-weight:700; font-size:.78em; margin:.3em 0">Parte 1</div>
+                <ul style="font-size:.7em; margin:0; padding-left:1.1em; line-height:1.9">
+                    <li>¿Cómo funciona un formulario?</li>
+                    <li>Atributos <code>action</code> y <code>method</code></li>
+                    <li>GET vs POST</li>
+                </ul>
+            </div>
+            <div class="card-slide card-green fragment">
+                <div style="text-align:center; font-size:1.3em">🐘</div>
+                <div style="text-align:center; color:#4ade80; font-weight:700; font-size:.78em; margin:.3em 0">Parte 2</div>
+                <ul style="font-size:.7em; margin:0; padding-left:1.1em; line-height:1.9">
+                    <li><code>$_POST</code> y <code>$_GET</code> en PHP</li>
+                    <li>Validar con <code>empty()</code> y <code>trim()</code></li>
+                    <li>Sanitizar con <code>htmlspecialchars()</code></li>
+                </ul>
+            </div>
+            <div class="card-slide card-purple fragment">
+                <div style="text-align:center; font-size:1.3em">⚡</div>
+                <div style="text-align:center; color:#a78bfa; font-weight:700; font-size:.78em; margin:.3em 0">Parte 3 (Comp.)</div>
+                <ul style="font-size:.7em; margin:0; padding-left:1.1em; line-height:1.9">
+                    <li>La misma idea sin recargar</li>
+                    <li><code>fetch</code> básico</li>
+                    <li>PHP no cambia</li>
+                </ul>
+            </div>
+        </div>
+        <div class="tip fragment" style="text-align:center; margin-top:1rem">
+            <strong>Objetivo:</strong> Enviar datos desde HTML y leerlos en PHP — el ciclo más fundamental del desarrollo web
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     3. ¿CÓMO FUNCIONA UN FORMULARIO?
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>¿Cómo funciona un formulario?</h2>
+    <div class="slide-body" style="margin-top:.6rem">
+
+        <!-- Flujo horizontal -->
+        <div style="display:flex; align-items:center; gap:.3rem; margin-bottom:.8rem">
+            <div class="flow-box" style="flex:1; border:1px solid #38bdf8; color:#a5f3fc; font-size:.65em; padding:.4rem .5rem">
+                Navegador<br>muestra el formulario
+            </div>
+            <div style="color:#38bdf8; font-size:1.2em; flex-shrink:0" class="fragment">→</div>
+            <div class="flow-box fragment" style="flex:1; font-size:.65em; padding:.4rem .5rem">
+                Usuario completa y hace clic en <em>Enviar</em>
+            </div>
+            <div style="color:#38bdf8; font-size:1.2em; flex-shrink:0" class="fragment">→</div>
+            <div class="flow-box fragment" style="flex:1.3; font-size:.65em; padding:.4rem .5rem">
+                Navegador empaqueta:<br>
+                <code style="font-size:.9em">nombre=Juan&amp;<br>email=juan@uni.edu</code>
+            </div>
+            <div style="color:#4ade80; font-size:1.2em; flex-shrink:0" class="fragment">→</div>
+            <div class="flow-box fragment" style="flex:1.3; border:1px solid #4ade80; color:#86efac; font-size:.65em; padding:.4rem .5rem">
+                PHP lee con<br>
+                <code style="font-size:.9em">$_POST['nombre']</code><br>
+                y responde HTML
+            </div>
+        </div>
+
+        <!-- Código -->
+        <div class="two-col fragment">
+            <pre><code class="language-html" data-trim>
+&lt;form action="procesar.php" method="POST"&gt;
+  &lt;input type="text" name="nombre"&gt;
+  &lt;input type="email" name="email"&gt;
+  &lt;button type="submit"&gt;Enviar&lt;/button&gt;
+&lt;/form&gt;
+            </code></pre>
+            <pre><code class="language-php" data-trim>
+&lt;?php
+// procesar.php
+$nombre = $_POST['nombre'];
+$email  = $_POST['email'];
+
+echo "Hola, $nombre!";
+echo "Tu email: $email";
+            </code></pre>
+        </div>
+
+        <div class="tip fragment" style="font-size:.7em; margin-top:.4rem">
+            <strong>Clave:</strong> El atributo <code>name</code> del input
+            es la clave con la que PHP lo lee en <code>$_POST['...']</code>
+        </div>
+
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     4. ATRIBUTOS DEL FORMULARIO
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>Atributos del formulario</h2>
+    <div class="slide-body" style="margin-top:1rem">
+
+        <div class="two-col">
+            <div>
+                <div style="color:#38bdf8; font-weight:700; font-size:.8em; margin-bottom:.5rem">
+                    <code>action</code> — ¿A dónde van los datos?
+                </div>
+                <pre><code class="language-html" data-trim>
+<!-- Sin action: al mismo archivo -->
+&lt;form&gt;...&lt;/form&gt;
+
+<!-- A otro archivo PHP -->
+&lt;form action="procesar.php"&gt;...&lt;/form&gt;
+
+<!-- Ruta absoluta -->
+&lt;form action="/registro/guardar.php"&gt;
+  ...
+&lt;/form&gt;
+                </code></pre>
+                <div class="tip" style="font-size: .7em">
+                    Si <code>action</code> se omite, el formulario se envía
+                    al mismo archivo donde está escrito.
+                    Muy útil cuando PHP y HTML van juntos.
+                </div>
+            </div>
+
+            <div>
+                <div style="color:#4ade80; font-weight:700; font-size:.8em; margin-bottom:.5rem">
+                    <code>method</code> — ¿Cómo viajan?
+                </div>
+                <pre><code class="language-html" data-trim>
+<!-- GET: datos en la URL (por defecto) -->
+&lt;form action="buscar.php" method="GET"&gt;
+  &lt;input name="q" placeholder="Buscar"&gt;
+  &lt;button type="submit"&gt;Buscar&lt;/button&gt;
+&lt;/form&gt;
+<!-- URL resultado: buscar.php?q=php -->
+
+<!-- POST: datos ocultos en el cuerpo -->
+&lt;form action="registro.php" method="POST"&gt;
+  &lt;input name="password" type="password"&gt;
+  &lt;button type="submit"&gt;Entrar&lt;/button&gt;
+&lt;/form&gt;
+<!-- La contraseña NO aparece en la URL -->
+                </code></pre>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     5. GET VS POST
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>GET vs POST</h2>
+    <div class="slide-body" style="margin-top:.8rem">
+
+        <table class="cmp-table">
+            <tr>
+                <th></th>
+                <th>GET</th>
+                <th>POST</th>
+            </tr>
+            <tr>
+                <td>¿Dónde van los datos?</td>
+                <td>En la URL: <code>?nombre=Juan</code></td>
+                <td>En el cuerpo de la petición (invisible)</td>
+            </tr>
+            <tr>
+                <td>¿Se ve en el navegador?</td>
+                <td>Sí — barra de direcciones</td>
+                <td>No</td>
+            </tr>
+            <tr>
+                <td>¿Contraseñas?</td>
+                <td style="color:#f87171"><strong>NUNCA</strong></td>
+                <td style="color:#4ade80">Sí</td>
+            </tr>
+            <tr>
+                <td>¿Límite de tamaño?</td>
+                <td>~2000 caracteres</td>
+                <td>Prácticamente ilimitado</td>
+            </tr>
+            <tr>
+                <td>PHP lo lee con</td>
+                <td><code>$_GET['campo']</code></td>
+                <td><code>$_POST['campo']</code></td>
+            </tr>
+            <tr>
+                <td>Casos de uso</td>
+                <td>Búsquedas, filtros</td>
+                <td>Login, registros, formularios de datos</td>
+            </tr>
+        </table>
+
+        <div class="two-col" style="margin-top: .8rem">
+            <div class="warn fragment">
+                <strong>Usar GET cuando:</strong> el usuario busca o filtra algo,
+                y querés que la URL sea compartible
+            </div>
+            <div class="good fragment">
+                <strong>Usar POST cuando:</strong> el usuario envía datos para guardar,
+                o incluye información sensible
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     6. $_POST EN PHP
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2><code>$_POST</code> en PHP</h2>
+    <div class="slide-body" style="margin-top: .8rem">
+
+        <div class="two-col">
+            <div>
+                <div style="font-size:.72em; color:#94a3b8; margin-bottom:.3rem">HTML — el formulario</div>
+                <pre><code class="language-html" data-trim>
+&lt;form action="procesar.php" method="POST"&gt;
+
+  &lt;input type="text"
+         name="nombre"
+         placeholder="Tu nombre"&gt;
+
+  &lt;input type="email"
+         name="email"
+         placeholder="tu@email.com"&gt;
+
+  &lt;select name="carrera"&gt;
+    &lt;option value="sistemas"&gt;Sistemas&lt;/option&gt;
+    &lt;option value="civil"&gt;Civil&lt;/option&gt;
+  &lt;/select&gt;
+
+  &lt;button type="submit"&gt;Enviar&lt;/button&gt;
+&lt;/form&gt;
+                </code></pre>
+            </div>
+
+            <div>
+                <div style="font-size:.72em; color:#94a3b8; margin-bottom:.3rem">PHP — procesar.php</div>
+                <pre><code class="language-php" data-trim>
+&lt;?php
+// $nombre lee el campo con name="nombre"
+$nombre  = $_POST['nombre'];
+$email   = $_POST['email'];
+$carrera = $_POST['carrera'];
+
+// Ver todo lo que llegó (para depurar)
+print_r($_POST);
+
+// Resultado en pantalla:
+// Array (
+//   [nombre]  => Juan
+//   [email]   => juan@uni.edu
+//   [carrera] => sistemas
+// )
+                </code></pre>
+                <div class="tip" style="font-size:.68em">
+                    <strong>Regla:</strong> el valor de <code>name</code> en el HTML
+                    es exactamente la clave que usás en <code>$_POST['...']</code>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     7. VERIFICAR QUE EL FORMULARIO FUE ENVIADO
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>¿Llegaron datos o no?</h2>
+    <div class="slide-body" style="margin-top:.8rem">
+
+        <p style="font-size:.78em; color:#94a3b8">
+            <code>$_POST</code> solo tiene datos cuando alguien envió el formulario.
+            Si alguien abre el archivo PHP directamente, está vacío.
+        </p>
+
+        <pre><code class="language-php" data-trim>
+&lt;?php
+// Verificar el método de la petición
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    // El usuario envió el formulario — procesamos
+    $nombre = $_POST['nombre'];
+    echo "Hola, $nombre!";
+
+} else {
+
+    // El usuario solo está visitando la página — mostramos el formulario
+    echo "Por favor completá el formulario";
+
+}
+        </code></pre>
+
+        <div class="two-col" style="margin-top: .5rem">
+            <div class="card-slide card-orange fragment" style="font-size:.72em">
+                <strong style="color:#fb923c">¿Qué es <code>$_SERVER</code>?</strong><br><br>
+                Un array especial de PHP con información sobre la petición HTTP.
+                <code>$_SERVER['REQUEST_METHOD']</code> dice si fue GET, POST, etc.
+            </div>
+            <div class="card-slide card-blue fragment" style="font-size:.72em">
+                <strong style="color:#38bdf8">Valor por defecto con <code>??</code></strong><br><br>
+                <code>$nombre = $_POST['nombre'] ?? '';</code><br><br>
+                Si el campo no existe en <code>$_POST</code>, usa <code>''</code> en lugar de dar error.
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     8. VALIDACIÓN
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>Validar los datos en PHP</h2>
+    <div class="slide-body" style="margin-top:.5rem">
+
+        <p style="font-size:.75em; color:#fca5a5; margin-bottom:.7rem">
+            Los datos del formulario <strong>no son confiables</strong>.
+            Siempre validar en el servidor, aunque el HTML ya tenga <code>required</code>.
+        </p>
+
+        <div class="two-col">
+            <div>
+                <pre><code class="language-php" data-trim>
+&lt;?php
+$nombre = trim($_POST['nombre'] ?? '');
+$email  = trim($_POST['email']  ?? '');
+
+$errores = [];
+
+// empty(): true si es "" o null o 0
+if (empty($nombre)) {
+    $errores[] = "El nombre es obligatorio";
+}
+
+// trim() quita espacios: "  Juan  " → "Juan"
+// empty(trim()) evita que "   " pase la validación
+if (empty(trim($nombre))) {
+    $errores[] = "El nombre no puede estar en blanco";
+}
+
+// Longitud
+if (strlen($nombre) < 2) {
+    $errores[] = "Mínimo 2 caracteres";
+}
+
+// Formato de email
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $errores[] = "Email inválido";
+}
+                </code></pre>
+            </div>
+
+            <div>
+                <pre><code class="language-php" data-trim>
+// Lista blanca para selects
+$carreras = ['sistemas', 'civil', 'industrial'];
+if (!in_array($carrera, $carreras)) {
+    $errores[] = "Carrera inválida";
+}
+
+// Mostrar errores y detener el proceso
+if (!empty($errores)) {
+    foreach ($errores as $e) {
+        echo "&lt;p style='color:red'&gt;$e&lt;/p&gt;";
+    }
+    exit; // detener la ejecución
+}
+
+// Si llegamos aquí, los datos son válidos
+echo "¡Registro exitoso!";
+                </code></pre>
+                <div class="tip" style="font-size:.68em">
+                    <strong>Patrón:</strong> acumular todos los errores en un array
+                    y mostrarlos juntos al usuario — mejor experiencia que un error a la vez
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     9. HTMLSPECIALCHARS
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>Sanitizar: <code>htmlspecialchars()</code></h2>
+    <div class="slide-body" style="margin-top:.7rem">
+
+        <p style="font-size:.76em; margin-bottom:.6rem">
+            Si mostrás en HTML datos que vienen del usuario sin sanitizar,
+            alguien puede inyectar JavaScript malicioso. Esto se llama <strong>XSS</strong>.
+        </p>
+
+        <div class="two-col">
+            <div>
+                <div class="warn" style="font-size:.72em; margin-bottom:.5rem">
+                    <strong>Sin sanitizar — PELIGROSO</strong>
+                </div>
+                <pre><code class="language-php" data-trim>
+// El usuario escribió esto:
+// &lt;script&gt;alert('Hackeado!')&lt;/script&gt;
+
+$nombre = $_POST['nombre'];
+
+// PHP lo pone directamente en HTML:
+echo "Hola, $nombre";
+// Resultado: el navegador EJECUTA el script
+                </code></pre>
+            </div>
+
+            <div>
+                <div class="good" style="font-size:.72em; margin-bottom:.5rem">
+                    <strong>Con htmlspecialchars — SEGURO</strong>
+                </div>
+                <pre><code class="language-php" data-trim>
+$nombre = htmlspecialchars(
+    $_POST['nombre'],
+    ENT_QUOTES,
+    'UTF-8'
+);
+
+echo "Hola, $nombre";
+// Resultado: muestra el texto LITERAL,
+// no ejecuta nada
+
+// &lt; → &amp;lt;   > → &amp;gt;
+// " → &amp;quot;  ' → &amp;#039;
+// & → &amp;amp;
+                </code></pre>
+            </div>
+        </div>
+
+        <div class="tip fragment" style="text-align:center; font-size:.76em; margin-top:.5rem">
+            <strong>Regla de oro:</strong>
+            Siempre usá <code>htmlspecialchars()</code> cuando mostrés en HTML
+            cualquier dato que vino del usuario
+        </div>
+
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     10. EJEMPLO COMPLETO
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>Ejemplo completo — mismo archivo</h2>
+    <div class="slide-body" style="margin-top:.5rem">
+
+        <p style="font-size:.74em; color:#94a3b8; margin-bottom:.5rem">
+            Patrón muy común: el formulario y el PHP que lo procesa están en el mismo archivo.
+        </p>
+
+        <pre><code class="language-php" data-trim>
+&lt;?php
+$errores = [];
+$exito   = false;
+$nombre  = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $nombre = trim($_POST['nombre'] ?? '');
+
+    if (empty($nombre)) { $errores[] = "El nombre es obligatorio"; }
+
+    if (empty($errores)) { $exito = true; }
+}
+?&gt;
+&lt;!DOCTYPE html&gt;&lt;html lang="es"&gt;&lt;body&gt;
+
+&lt;?php if ($exito): ?&gt;
+    &lt;p&gt;Bienvenido, &lt;?= htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8') ?&gt;!&lt;/p&gt;
+    &lt;a href="registro.php"&gt;Volver&lt;/a&gt;
+
+&lt;?php else: ?&gt;
+    &lt;?php foreach ($errores as $e): ?&gt;
+        &lt;p style="color:red"&gt;&lt;?= htmlspecialchars($e, ENT_QUOTES, 'UTF-8') ?&gt;&lt;/p&gt;
+    &lt;?php endforeach; ?&gt;
+
+    &lt;form action="registro.php" method="POST"&gt;
+        &lt;input type="text" name="nombre"
+               value="&lt;?= htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8') ?&gt;"&gt;
+        &lt;button type="submit"&gt;Registrarse&lt;/button&gt;
+    &lt;/form&gt;
+&lt;?php endif; ?&gt;
+
+&lt;/body&gt;&lt;/html&gt;
+        </code></pre>
+
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     11. FLUJO VISUAL
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>El flujo en 3 pasos</h2>
+    <div class="slide-body" style="margin-top:1.2rem">
+        <div class="three-col">
+            <div class="card-slide card-blue fragment">
+                <div style="text-align:center; font-size:2em">📋</div>
+                <div style="text-align:center; color:#38bdf8; font-weight:700; font-size:.85em; margin:.4em 0">1. HTML envia</div>
+                <ul style="font-size:.7em; margin:0; padding-left:1.1em; line-height:1.8">
+                    <li><code>action</code> = destino PHP</li>
+                    <li><code>method="POST"</code></li>
+                    <li>Campos con <code>name</code></li>
+                    <li>Botón <code>type="submit"</code></li>
+                </ul>
+            </div>
+            <div class="card-slide card-green fragment">
+                <div style="text-align:center; font-size:2em">🐘</div>
+                <div style="text-align:center; color:#4ade80; font-weight:700; font-size:.85em; margin:.4em 0">2. PHP procesa</div>
+                <ul style="font-size:.7em; margin:0; padding-left:1.1em; line-height:1.8">
+                    <li>Lee con <code>$_POST</code></li>
+                    <li>Limpia con <code>trim()</code></li>
+                    <li>Valida con <code>empty()</code></li>
+                    <li>Sanitiza con <code>htmlspecialchars()</code></li>
+                </ul>
+            </div>
+            <div class="card-slide card-orange fragment">
+                <div style="text-align:center; font-size:2em">🖥️</div>
+                <div style="text-align:center; color:#fb923c; font-weight:700; font-size:.85em; margin:.4em 0">3. PHP responde</div>
+                <ul style="font-size:.7em; margin:0; padding-left:1.1em; line-height:1.8">
+                    <li>Errores → vuelve al formulario</li>
+                    <li>Éxito → mensaje de confirmación</li>
+                    <li>Valores pre-llenados si hay errores</li>
+                </ul>
+            </div>
+        </div>
+        <div class="tip fragment" style="text-align:center; margin-top:1rem; font-size:.76em">
+            Este ciclo es la base de <strong>toda</strong> la web tradicional.
+            Login, registros, comentarios, pedidos — todos funcionan igual.
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     12. COMPLEMENTARIO: FETCH
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2><span class="chip chip-purple">Complementario</span> fetch básico</h2>
+    <div class="slide-body" style="margin-top:.7rem">
+
+        <p style="font-size:.76em; color:#94a3b8; margin-bottom:.6rem">
+            La misma idea — enviar datos al servidor — pero <strong>sin recargar la página</strong>.
+        </p>
+
+        <div class="two-col">
+            <div>
+                <div style="font-size:.72em; color:#a78bfa; margin-bottom:.3rem">PHP — saludo.php (no cambia)</div>
+                <pre><code class="language-php" data-trim>
+&lt;?php
+// PHP funciona igual — no sabe si
+// viene de un formulario o de fetch
+$nombre = $_GET['nombre'] ?? 'desconocido';
+$nombre = htmlspecialchars(trim($nombre),
+    ENT_QUOTES, 'UTF-8');
+
+echo "Hola, $nombre!";
+                </code></pre>
+            </div>
+
+            <div>
+                <div style="font-size:.72em; color:#a78bfa; margin-bottom:.3rem">JavaScript — fetch en 4 líneas</div>
+                <pre><code class="language-javascript" data-trim>
+function saludar() {
+  var nombre = document.getElementById('nombre').value;
+
+  fetch('saludo.php?nombre=' + nombre)
+    .then(function(respuesta) {
+      return respuesta.text();   // leer la respuesta
+    })
+    .then(function(texto) {
+      // mostrar sin recargar
+      document.getElementById('resultado').innerHTML = texto;
+    });
+}
+                </code></pre>
+            </div>
+        </div>
+
+        <table class="cmp-table fragment" style="margin-top:.6rem">
+            <tr>
+                <th></th>
+                <th>Formulario clásico</th>
+                <th>fetch</th>
+            </tr>
+            <tr>
+                <td>¿Recarga la página?</td>
+                <td>Sí, siempre</td>
+                <td>No</td>
+            </tr>
+            <tr>
+                <td>¿Necesita JavaScript?</td>
+                <td>No</td>
+                <td>Sí</td>
+            </tr>
+            <tr>
+                <td>PHP del lado del servidor</td>
+                <td colspan="2" style="text-align:center">Exactamente igual — lee $_GET o $_POST</td>
+            </tr>
+        </table>
+
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     13. RESUMEN
+══════════════════════════════════════════════════════ -->
+<section>
+    <h2>Resumen de la clase</h2>
+    <div class="slide-body" style="margin-top:1rem">
+        <div class="two-col">
+            <div>
+                <div style="color:#38bdf8; font-weight:700; font-size:.8em; margin-bottom:.5rem">Lo que vimos hoy</div>
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div class="step-body">
+                        <code>&lt;form action="..." method="POST"&gt;</code> envía datos al servidor
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div class="step-body">
+                        <code>$_POST['campo']</code> lee el valor del campo <code>name="campo"</code>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div class="step-body">
+                        <code>trim()</code> + <code>empty()</code> limpian y validan los datos
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">4</div>
+                    <div class="step-body">
+                        <code>htmlspecialchars()</code> sanitiza antes de mostrar en HTML
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">5</div>
+                    <div class="step-body">
+                        <code>fetch</code> hace lo mismo sin recargar la página (con JS)
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div style="color:#4ade80; font-weight:700; font-size:.8em; margin-bottom:.5rem">Cheat sheet rápido</div>
+                <pre style="font-size:.6em"><code class="language-php" data-trim>
+// Leer campo POST
+$val = trim($_POST['campo'] ?? '');
+
+// Validar
+if (empty($val)) { /* error */ }
+if (!filter_var($email,
+    FILTER_VALIDATE_EMAIL)) { /* error */ }
+
+// Sanitizar para mostrar en HTML
+echo htmlspecialchars($val, ENT_QUOTES, 'UTF-8');
+
+// Verificar que se envió el formulario
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // procesar
+}
+                </code></pre>
+            </div>
+        </div>
+
+        <div class="tip fragment" style="text-align:center; margin-top:.8rem; font-size:.74em">
+            <strong>Próxima clase:</strong> Mini-proyecto integrador U2 —
+            formulario que consume un endpoint PHP y actualiza la UI sin recargar
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     14. EJERCICIOS
+══════════════════════════════════════════════════════ -->
+<section data-background-gradient="linear-gradient(135deg,#0f172a 0%,#1a2a1a 100%)">
+    <h2>A practicar</h2>
+    <div class="slide-body" style="margin-top:1rem">
+        <div class="three-col">
+            <div class="card-slide card-blue">
+                <div style="color:#38bdf8; font-weight:700; font-size:.78em; margin-bottom:.4em">Actividad 1 · 10 min</div>
+                <div style="font-size:.72em; line-height:1.6">
+                    Conceptual: GET vs POST,<br>
+                    para qué sirve <code>htmlspecialchars</code>
+                </div>
+            </div>
+            <div class="card-slide card-teal">
+                <div style="color:#2dd4bf; font-weight:700; font-size:.78em; margin-bottom:.4em">Actividad 2 · 15 min</div>
+                <div style="font-size:.72em; line-height:1.6">
+                    DevTools + Network:<br>
+                    analizar la petición POST del formulario de ejemplo
+                </div>
+            </div>
+            <div class="card-slide card-green">
+                <div style="color:#4ade80; font-weight:700; font-size:.78em; margin-bottom:.4em">Actividad 3 · 30 min</div>
+                <div style="font-size:.72em; line-height:1.6">
+                    Formulario de contacto propio<br>
+                    con validaciones PHP completas
+                </div>
+            </div>
+        </div>
+        <div class="card-slide card-purple" style="margin-top:.8rem">
+            <div style="color:#a78bfa; font-weight:700; font-size:.78em; margin-bottom:.4em">Actividad 4 · Complementaria · 20 min</div>
+            <div style="font-size:.72em">
+                Calculadora con fetch: <code>calculadora.php</code> + <code>calculadora.html</code>
+            </div>
+        </div>
+        <div class="tip" style="text-align:center; font-size:.74em; margin-top:.8rem">
+            Ver instrucciones completas en <strong>ejercicios/README.md</strong>
+        </div>
+    </div>
+</section>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+<script>
+Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    transition: 'slide',
+    plugins: [RevealHighlight, RevealNotes],
+    highlight: { highlightOnLoad: true },
+});
+</script>
+</body>
+</html>
