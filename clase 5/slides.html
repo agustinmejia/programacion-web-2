@@ -92,14 +92,14 @@
         .cmp-table td { padding: .3em .6em; }
         .cmp-table tr:nth-child(even) td { background: rgba(255,255,255,.05); }
 
-        .step { display: flex; align-items: flex-start; gap: .7rem; margin-bottom: .55rem; }
+        .step { display: flex; align-items: flex-start; gap: .5rem; margin-bottom: .35rem; }
         .step-num {
             background: #1d4ed8; color: #e0f2fe; border-radius: 50%;
-            min-width: 1.7em; height: 1.7em; display: flex;
+            min-width: 1.5em; height: 1.5em; display: flex;
             align-items: center; justify-content: center;
-            font-weight: 700; font-size: .78em; flex-shrink: 0; margin-top: .05em;
+            font-weight: 700; font-size: .72em; flex-shrink: 0; margin-top: .05em;
         }
-        .step-body { font-size: .78em; line-height: 1.5; }
+        .step-body { font-size: .73em; line-height: 1.4; }
 
         .flow-arrow {
             text-align: center;
@@ -468,7 +468,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!-- ══════════════════════════════════════════════════════
      8. VALIDACIÓN
 ══════════════════════════════════════════════════════ -->
-<section>
+<!-- <section>
     <h2>Validar los datos en PHP</h2>
     <div class="slide-body" style="margin-top:.5rem">
 
@@ -536,12 +536,12 @@ echo "¡Registro exitoso!";
         </div>
 
     </div>
-</section>
+</section> -->
 
 <!-- ══════════════════════════════════════════════════════
      9. HTMLSPECIALCHARS
 ══════════════════════════════════════════════════════ -->
-<section>
+<!-- <section>
     <h2>Sanitizar: <code>htmlspecialchars()</code></h2>
     <div class="slide-body" style="margin-top:.7rem">
 
@@ -596,7 +596,7 @@ echo "Hola, $nombre";
         </div>
 
     </div>
-</section>
+</section> -->
 
 <!-- ══════════════════════════════════════════════════════
      10. EJEMPLO COMPLETO
@@ -652,12 +652,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ══════════════════════════════════════════════════════ -->
 <section>
     <h2>El flujo en 3 pasos</h2>
-    <div class="slide-body" style="margin-top:1.2rem">
+    <div class="slide-body" style="margin-top:.5rem">
         <div class="three-col">
             <div class="card-slide card-blue fragment">
-                <div style="text-align:center; font-size:2em">📋</div>
-                <div style="text-align:center; color:#38bdf8; font-weight:700; font-size:.85em; margin:.4em 0">1. HTML envia</div>
-                <ul style="font-size:.7em; margin:0; padding-left:1.1em; line-height:1.8">
+                <div style="text-align:center; font-size:1.4em">📋</div>
+                <div style="text-align:center; color:#38bdf8; font-weight:700; font-size:.8em; margin:.2em 0">1. HTML envia</div>
+                <ul style="font-size:.68em; margin:0; padding-left:1.1em; line-height:1.6">
                     <li><code>action</code> = destino PHP</li>
                     <li><code>method="POST"</code></li>
                     <li>Campos con <code>name</code></li>
@@ -665,9 +665,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </ul>
             </div>
             <div class="card-slide card-green fragment">
-                <div style="text-align:center; font-size:2em">🐘</div>
-                <div style="text-align:center; color:#4ade80; font-weight:700; font-size:.85em; margin:.4em 0">2. PHP procesa</div>
-                <ul style="font-size:.7em; margin:0; padding-left:1.1em; line-height:1.8">
+                <div style="text-align:center; font-size:1.4em">🐘</div>
+                <div style="text-align:center; color:#4ade80; font-weight:700; font-size:.8em; margin:.2em 0">2. PHP procesa</div>
+                <ul style="font-size:.68em; margin:0; padding-left:1.1em; line-height:1.6">
                     <li>Lee con <code>$_POST</code></li>
                     <li>Limpia con <code>trim()</code></li>
                     <li>Valida con <code>empty()</code></li>
@@ -675,16 +675,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </ul>
             </div>
             <div class="card-slide card-orange fragment">
-                <div style="text-align:center; font-size:2em">🖥️</div>
-                <div style="text-align:center; color:#fb923c; font-weight:700; font-size:.85em; margin:.4em 0">3. PHP responde</div>
-                <ul style="font-size:.7em; margin:0; padding-left:1.1em; line-height:1.8">
+                <div style="text-align:center; font-size:1.4em">🖥️</div>
+                <div style="text-align:center; color:#fb923c; font-weight:700; font-size:.8em; margin:.2em 0">3. PHP responde</div>
+                <ul style="font-size:.68em; margin:0; padding-left:1.1em; line-height:1.6">
                     <li>Errores → vuelve al formulario</li>
                     <li>Éxito → mensaje de confirmación</li>
                     <li>Valores pre-llenados si hay errores</li>
                 </ul>
             </div>
         </div>
-        <div class="tip fragment" style="text-align:center; margin-top:1rem; font-size:.76em">
+        <div class="tip fragment" style="text-align:center; margin-top:.5rem; font-size:.74em">
             Este ciclo es la base de <strong>toda</strong> la web tradicional.
             Login, registros, comentarios, pedidos — todos funcionan igual.
         </div>
@@ -696,9 +696,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ══════════════════════════════════════════════════════ -->
 <section>
     <h2><span class="chip chip-purple">Complementario</span> fetch básico</h2>
-    <div class="slide-body" style="margin-top:.7rem">
+    <div class="slide-body" style="margin-top:.3rem">
 
-        <p style="font-size:.76em; color:#94a3b8; margin-bottom:.6rem">
+        <p style="font-size:.73em; color:#94a3b8; margin-bottom:.3rem">
             La misma idea — enviar datos al servidor — pero <strong>sin recargar la página</strong>.
         </p>
 
@@ -736,7 +736,7 @@ function saludar() {
             </div>
         </div>
 
-        <table class="cmp-table fragment" style="margin-top:.6rem">
+        <table class="cmp-table fragment" style="margin-top:.3rem">
             <tr>
                 <th></th>
                 <th>Formulario clásico</th>
@@ -766,7 +766,7 @@ function saludar() {
 ══════════════════════════════════════════════════════ -->
 <section>
     <h2>Resumen de la clase</h2>
-    <div class="slide-body" style="margin-top:1rem">
+    <div class="slide-body" style="margin-top:.4rem">
         <div class="two-col">
             <div>
                 <div style="color:#38bdf8; font-weight:700; font-size:.8em; margin-bottom:.5rem">Lo que vimos hoy</div>
@@ -824,7 +824,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
 
-        <div class="tip fragment" style="text-align:center; margin-top:.8rem; font-size:.74em">
+        <div class="tip fragment" style="text-align:center; margin-top:.4rem; font-size:.72em">
             <strong>Próxima clase:</strong> Mini-proyecto integrador U2 —
             formulario que consume un endpoint PHP y actualiza la UI sin recargar
         </div>

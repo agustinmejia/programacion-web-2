@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Clase 6 — PHP Fundamentos</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/night.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css">
+<style>
+    .reveal pre code { font-size: .85em; line-height: 1.5; }
+    .reveal .badge-azul  { background:#0d6efd; color:#fff; padding:.2em .6em; border-radius:.3em; }
+    .reveal .badge-verde { background:#198754; color:#fff; padding:.2em .6em; border-radius:.3em; }
+    .reveal .badge-rojo  { background:#dc3545; color:#fff; padding:.2em .6em; border-radius:.3em; }
+    .reveal .badge-gris  { background:#6c757d; color:#fff; padding:.2em .6em; border-radius:.3em; }
+    .reveal table { font-size: .8em; }
+    .reveal .tip { background: rgba(13,110,253,.15); border-left: 4px solid #0d6efd;
+                   padding: .5em 1em; margin-top: .8em; border-radius: 0 .3em .3em 0; font-size: .85em; }
+    .reveal .warning { background: rgba(255,193,7,.15); border-left: 4px solid #ffc107;
+                       padding: .5em 1em; margin-top: .8em; border-radius: 0 .3em .3em 0; font-size: .85em; }
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ============================================================ PORTADA -->
+<section>
+    <h2>PHP</h2>
+    <h3>Fundamentos del lenguaje</h3>
+    <p style="color:#aaa">Clase 6 · Programación Web II · UPV</p>
+    <p style="color:#aaa; font-size:.75em">Variables · Operadores · Condicionales · Bucles · Arreglos</p>
+</section>
+
+<!-- ============================================================ AGENDA -->
+<section>
+    <h3>¿Qué vemos hoy?</h3>
+    <ol style="font-size:.9em">
+        <li>¿Qué es PHP y cómo funciona?</li>
+        <li>Variables y tipos de datos</li>
+        <li>Operadores</li>
+        <li>Estructuras selectivas</li>
+        <li>Estructuras repetitivas</li>
+        <li>Arreglos</li>
+        <li>Ejercicios prácticos</li>
+    </ol>
+</section>
+
+<!-- ============================================================ ¿QUÉ ES PHP? -->
+<section>
+    <section>
+        <h3>¿Qué es PHP?</h3>
+        <p><strong>PHP: Hypertext Preprocessor</strong></p>
+        <p style="font-size:.85em">Lenguaje que se ejecuta en el <strong>servidor</strong>.<br>
+        El navegador solo recibe el HTML resultante.</p>
+        <pre><code class="language-text" data-trim>
+Navegador → petición HTTP → Servidor
+                                ↓
+                          PHP procesa .php
+                                ↓
+Navegador ← HTML generado ← Servidor
+        </code></pre>
+    </section>
+    <section>
+        <h3>Primer archivo PHP</h3>
+        <pre><code class="language-php" data-trim>
+&lt;?php
+echo "Hola desde el servidor";
+?&gt;
+        </code></pre>
+        <div class="tip">
+            Todo el código PHP va entre <code>&lt;?php</code> y <code>?&gt;</code><br>
+            <code>echo</code> imprime en el HTML generado
+        </div>
+    </section>
+</section>
+
+<!-- ============================================================ VARIABLES -->
+<section>
+    <section>
+        <h3>Variables</h3>
+        <pre><code class="language-php" data-trim>
+&lt;?php
+$nombre   = "Carlos";   // string
+$edad     = 21;          // int
+$promedio = 8.75;        // float
+$aprobado = true;        // bool
+$dato     = null;        // null
+        </code></pre>
+        <ul style="font-size:.85em">
+            <li>Siempre empiezan con <code>$</code></li>
+            <li>No se declara el tipo — PHP lo infiere</li>
+            <li>Sensibles a mayúsculas: <code>$Nombre ≠ $nombre</code></li>
+        </ul>
+    </section>
+    <section>
+        <h3>Tipos de datos</h3>
+        <table>
+            <thead><tr><th>Tipo</th><th>Ejemplo</th><th>Descripción</th></tr></thead>
+            <tbody>
+                <tr><td><code>int</code></td><td><code>42, -10</code></td><td>Número entero</td></tr>
+                <tr><td><code>float</code></td><td><code>3.14</code></td><td>Número decimal</td></tr>
+                <tr><td><code>string</code></td><td><code>"Hola"</code></td><td>Cadena de texto</td></tr>
+                <tr><td><code>bool</code></td><td><code>true/false</code></td><td>Verdadero/falso</td></tr>
+                <tr><td><code>null</code></td><td><code>null</code></td><td>Sin valor</td></tr>
+                <tr><td><code>array</code></td><td><code>[1,2,3]</code></td><td>Colección</td></tr>
+            </tbody>
+        </table>
+    </section>
+    <section>
+        <h3>Strings: comillas dobles vs simples</h3>
+        <pre><code class="language-php" data-trim>
+$nombre = "Ana";
+
+// Comillas dobles → interpolan variables
+echo "Hola, $nombre";       // Hola, Ana
+echo "Hola, {$nombre}!";    // Hola, Ana!
+
+// Comillas simples → literal, sin interpolar
+echo 'Hola, $nombre';       // Hola, $nombre
+
+// Concatenación con el punto (.)
+echo "Hola, " . $nombre;    // Hola, Ana
+        </code></pre>
+        <div class="warning">En PHP la concatenación usa <code>.</code>, no <code>+</code></div>
+    </section>
+</section>
+
+<!-- ============================================================ OPERADORES -->
+<section>
+    <section>
+        <h3>Operadores aritméticos</h3>
+        <pre><code class="language-php" data-trim>
+$a = 10;  $b = 3;
+
+$a + $b   // 13  — suma
+$a - $b   // 7   — resta
+$a * $b   // 30  — multiplicación
+$a / $b   // 3.33 — división
+$a % $b   // 1   — módulo (resto)
+$a ** $b  // 1000 — potencia
+        </code></pre>
+    </section>
+    <section>
+        <h3>Operadores de comparación</h3>
+        <pre><code class="language-php" data-trim>
+$x = 5;   $y = "5";
+
+$x == $y    // true  — igual en valor (débil)
+$x === $y   // false — igual en valor Y tipo ✓ preferir
+$x != $y    // false
+$x !== $y   // true                           ✓ preferir
+
+$x > 3    // true
+$x <= 5   // true
+        </code></pre>
+        <div class="tip">Usar siempre <code>===</code> y <code>!==</code> para evitar sorpresas</div>
+    </section>
+    <section>
+        <h3>Operadores lógicos</h3>
+        <pre><code class="language-php" data-trim>
+$mayor  = ($edad >= 18);   // false
+$activo = true;
+
+$mayor && $activo   // false — AND: ambas verdaderas
+$mayor || $activo   // true  — OR: al menos una
+!$activo            // false — NOT: niega el valor
+        </code></pre>
+    </section>
+</section>
+
+<!-- ============================================================ CONDICIONALES -->
+<section>
+    <section>
+        <h3>if / elseif / else</h3>
+        <pre><code class="language-php" data-trim>
+$nota = 75;
+
+if ($nota >= 90) {
+    echo "Excelente";
+} elseif ($nota >= 70) {
+    echo "Aprobado";
+} elseif ($nota >= 51) {
+    echo "Regular";
+} else {
+    echo "Reprobado";
+}
+        </code></pre>
+    </section>
+    <section>
+        <h3>Operador ternario</h3>
+        <pre><code class="language-php" data-trim>
+// Forma larga
+if ($nota >= 51) {
+    $estado = "Aprobado";
+} else {
+    $estado = "Reprobado";
+}
+
+// Forma corta — ternario
+$estado = ($nota >= 51) ? "Aprobado" : "Reprobado";
+        </code></pre>
+        <div class="tip">Usar solo para condiciones simples — no anidar ternarios</div>
+    </section>
+    <section>
+        <h3>switch</h3>
+        <pre><code class="language-php" data-trim>
+$dia = "lunes";
+
+switch ($dia) {
+    case "lunes":
+    case "martes":
+    case "miércoles":
+    case "jueves":
+    case "viernes":
+        echo "Día laboral";
+        break;        // ← sin break, cae al siguiente case
+    case "sábado":
+    case "domingo":
+        echo "Fin de semana";
+        break;
+    default:
+        echo "Día no reconocido";
+}
+        </code></pre>
+    </section>
+    <section>
+        <h3>match (PHP 8+)</h3>
+        <pre><code class="language-php" data-trim>
+$estado = "activo";
+
+$mensaje = match($estado) {
+    "activo"     => "Puede ingresar",
+    "inactivo"   => "Fue desactivado",
+    "suspendido" => "Suspendido temporalmente",
+    default      => "Estado desconocido"
+};
+
+echo $mensaje;
+        </code></pre>
+        <table style="font-size:.75em">
+            <tr><th></th><th>switch</th><th>match</th></tr>
+            <tr><td>Comparación</td><td>débil (==)</td><td>estricta (===)</td></tr>
+            <tr><td>Fall-through</td><td>Sí</td><td>No</td></tr>
+            <tr><td>Devuelve valor</td><td>No</td><td>Sí</td></tr>
+        </table>
+    </section>
+</section>
+
+<!-- ============================================================ BUCLES -->
+<section>
+    <section>
+        <h3>Bucle for</h3>
+        <pre><code class="language-php" data-trim>
+// Cuando sabés cuántas veces repetir
+for ($i = 1; $i <= 10; $i++) {
+    echo "Iteración $i\n";
+}
+
+// Tabla del 3
+for ($i = 1; $i <= 10; $i++) {
+    echo "3 × $i = " . (3 * $i) . "\n";
+}
+        </code></pre>
+        <p style="font-size:.8em">Estructura: <code>for (inicio; condición; paso)</code></p>
+    </section>
+    <section>
+        <h3>Bucle while</h3>
+        <pre><code class="language-php" data-trim>
+// Condición al inicio — puede no ejecutarse nunca
+$contador = 5;
+
+while ($contador > 0) {
+    echo "$contador... ";
+    $contador--;
+}
+echo "¡Ya!";
+// 5... 4... 3... 2... 1... ¡Ya!
+        </code></pre>
+        <div class="warning">Si la condición es falsa desde el inicio, el bloque no se ejecuta</div>
+    </section>
+    <section>
+        <h3>Bucle do-while</h3>
+        <pre><code class="language-php" data-trim>
+// Ejecuta al menos una vez
+$numero = 100;
+
+do {
+    echo "Ejecutado con número = $numero\n";
+} while ($numero < 10);
+
+// Se imprime una vez aunque 100 < 10 es false
+        </code></pre>
+        <div class="tip">La condición se evalúa <strong>después</strong> del bloque</div>
+    </section>
+    <section>
+        <h3>Bucle foreach</h3>
+        <pre><code class="language-php" data-trim>
+$cursos = ["PHP", "Laravel", "MySQL"];
+
+// Solo valor
+foreach ($cursos as $curso) {
+    echo $curso . "\n";
+}
+
+// Índice y valor
+foreach ($cursos as $i => $curso) {
+    echo "$i: $curso\n";
+}
+// 0: PHP  1: Laravel  2: MySQL
+        </code></pre>
+        <div class="tip">Es el bucle más usado en PHP — ideal para arreglos</div>
+    </section>
+    <section>
+        <h3>break y continue</h3>
+        <pre><code class="language-php" data-trim>
+for ($i = 1; $i <= 10; $i++) {
+    if ($i % 2 === 0) continue; // salta los pares
+    if ($i === 9)     break;    // para antes del 9
+    echo "$i ";
+}
+// 1 3 5 7
+        </code></pre>
+        <table style="font-size:.8em">
+            <tr><td><code>continue</code></td><td>Salta la iteración actual</td></tr>
+            <tr><td><code>break</code></td><td>Termina el bucle completamente</td></tr>
+        </table>
+    </section>
+</section>
+
+<!-- ============================================================ ARREGLOS -->
+<section>
+    <section>
+        <h3>Arreglos — Indexado</h3>
+        <pre><code class="language-php" data-trim>
+$frutas = ["manzana", "banana", "naranja"];
+//  índice:     0         1         2
+
+echo $frutas[0];    // manzana
+echo $frutas[2];    // naranja
+echo count($frutas); // 3
+
+$frutas[] = "uva";           // agrega al final
+array_push($frutas, "kiwi"); // equivalente
+        </code></pre>
+        <div class="tip">Los índices empiezan en <strong>0</strong></div>
+    </section>
+    <section>
+        <h3>Arreglos — Asociativo</h3>
+        <pre><code class="language-php" data-trim>
+$estudiante = [
+    "nombre"  => "María",
+    "dni"     => "98765432",
+    "nota"    => 88,
+    "activo"  => true,
+];
+
+echo $estudiante["nombre"];  // María
+
+// Modificar
+$estudiante["nota"] = 92;
+
+// Verificar clave
+if (isset($estudiante["email"])) {
+    echo $estudiante["email"];
+}
+        </code></pre>
+    </section>
+    <section>
+        <h3>Arreglos — Multidimensional</h3>
+        <pre><code class="language-php" data-trim>
+$alumnos = [
+    ["nombre" => "Luis",  "nota" => 75],
+    ["nombre" => "Sara",  "nota" => 90],
+    ["nombre" => "Pedro", "nota" => 60],
+];
+
+// Acceder a un elemento
+echo $alumnos[1]["nombre"];   // Sara
+
+// Recorrer
+foreach ($alumnos as $alumno) {
+    echo $alumno["nombre"] . ": " . $alumno["nota"] . "\n";
+}
+        </code></pre>
+    </section>
+    <section>
+        <h3>Funciones de arreglos</h3>
+        <pre><code class="language-php" data-trim>
+$nums = [5, 2, 8, 1, 9];
+
+count($nums)              // 5
+in_array(8, $nums)        // true
+min($nums)                // 1
+max($nums)                // 9
+array_sum($nums)          // 25
+sort($nums)               // [1,2,5,8,9] — modifica original
+array_reverse($nums)      // devuelve nuevo arreglo
+
+// Para arreglos asociativos:
+array_keys($arr)          // devuelve las claves
+array_values($arr)        // devuelve los valores
+        </code></pre>
+    </section>
+</section>
+
+<!-- ============================================================ RESUMEN -->
+<section>
+    <h3>Resumen</h3>
+    <table style="font-size:.75em">
+        <tr><th>Concepto</th><th>Sintaxis clave</th></tr>
+        <tr><td>Variable</td><td><code>$nombre = valor;</code></td></tr>
+        <tr><td>Tipos</td><td><code>int · float · string · bool · null · array</code></td></tr>
+        <tr><td>Concatenar</td><td><code>"Hola, " . $nombre</code> (punto, no +)</td></tr>
+        <tr><td>Comparación estricta</td><td><code>=== y !==</code></td></tr>
+        <tr><td>Condicional</td><td><code>if / elseif / else</code></td></tr>
+        <tr><td>Selección múltiple</td><td><code>switch / match</code></td></tr>
+        <tr><td>Bucle cantidad fija</td><td><code>for</code></td></tr>
+        <tr><td>Bucle condicional</td><td><code>while / do-while</code></td></tr>
+        <tr><td>Bucle arreglos</td><td><code>foreach ($arr as $k => $v)</code></td></tr>
+        <tr><td>Arreglo asociativo</td><td><code>["clave" => "valor"]</code></td></tr>
+    </table>
+</section>
+
+<!-- ============================================================ EJERCICIOS -->
+<section>
+    <h3>Ejercicios de la clase</h3>
+    <ol style="font-size:.85em">
+        <li><strong>Mi perfil</strong> — variables y tipos en una tabla</li>
+        <li><strong>Calculadora de notas</strong> — if/elseif/else</li>
+        <li><strong>Bucles</strong> — tabla del multiplicar, FizzBuzz, lista de materias</li>
+        <li><strong>Arreglos</strong> — indexado, asociativo, multidimensional</li>
+        <li><strong>Estadísticas</strong> (desafío) — promedios, aprobados, barras Bootstrap</li>
+    </ol>
+    <p style="font-size:.8em; color:#aaa; margin-top:1em">
+        Ver consignas completas en <code>ejercicios/README.md</code>
+    </p>
+</section>
+
+<!-- ============================================================ PRÓXIMA CLASE -->
+<section>
+    <h3>Próxima clase</h3>
+    <p>Según resultados de hoy:</p>
+    <div style="display:flex; gap:1em; justify-content:center; font-size:.85em">
+        <div style="background:rgba(25,135,84,.2); border:1px solid #198754; border-radius:.5em; padding:1em; width:45%">
+            <strong>Si todos entienden:</strong><br><br>
+            Clase 7 — Mini-proyecto integrador U2<br>
+            <em>formulario + PHP + fetch + actualización de la UI</em>
+        </div>
+        <div style="background:rgba(13,110,253,.2); border:1px solid #0d6efd; border-radius:.5em; padding:1em; width:45%">
+            <strong>Si se necesita más práctica:</strong><br><br>
+            Clase 6b — Funciones y arreglos avanzados<br>
+            <em>array_map · array_filter · usort · funciones propias</em>
+        </div>
+    </div>
+</section>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+<script>
+    Reveal.initialize({
+        hash: true,
+        slideNumber: true,
+        transition: 'slide',
+        plugins: [ RevealHighlight, RevealNotes ]
+    });
+</script>
+</body>
+</html>
