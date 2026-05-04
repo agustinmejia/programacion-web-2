@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Clase 7 — Funciones y Arreglos Avanzados</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/night.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css">
+<style>
+    .reveal pre code { font-size: .82em; line-height: 1.5; }
+    .reveal .badge-azul   { background:#0d6efd; color:#fff; padding:.2em .6em; border-radius:.3em; }
+    .reveal .badge-verde  { background:#198754; color:#fff; padding:.2em .6em; border-radius:.3em; }
+    .reveal .badge-rojo   { background:#dc3545; color:#fff; padding:.2em .6em; border-radius:.3em; }
+    .reveal .badge-gris   { background:#6c757d; color:#fff; padding:.2em .6em; border-radius:.3em; }
+    .reveal .badge-ambar  { background:#ffc107; color:#000; padding:.2em .6em; border-radius:.3em; }
+    .reveal table { font-size: .8em; }
+    .reveal .tip {
+        background: rgba(13,110,253,.15);
+        border-left: 4px solid #0d6efd;
+        padding: .5em 1em; margin-top: .8em;
+        border-radius: 0 .3em .3em 0; font-size: .85em;
+    }
+    .reveal .warning {
+        background: rgba(255,193,7,.15);
+        border-left: 4px solid #ffc107;
+        padding: .5em 1em; margin-top: .8em;
+        border-radius: 0 .3em .3em 0; font-size: .85em;
+    }
+    .reveal .success {
+        background: rgba(25,135,84,.15);
+        border-left: 4px solid #198754;
+        padding: .5em 1em; margin-top: .8em;
+        border-radius: 0 .3em .3em 0; font-size: .85em;
+    }
+    .reveal .cols { display: flex; gap: 1em; align-items: flex-start; }
+    .reveal .col  { flex: 1; }
+    .reveal .step {
+        display: inline-block;
+        background: #0d6efd; color: #fff;
+        border-radius: 50%; width: 1.6em; height: 1.6em;
+        line-height: 1.6em; text-align: center;
+        font-weight: bold; margin-right: .4em; font-size: .9em;
+    }
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ═══════════════════════════════════════════ PORTADA -->
+<section>
+    <h2>PHP</h2>
+    <h3>Funciones y Arreglos Avanzados</h3>
+    <p style="color:#aaa">Clase 7 · Programación Web II · UPV</p>
+    <p style="color:#aaa; font-size:.75em">
+        Arreglos asociativos · Funciones · <code>array_map</code> · <code>array_filter</code> · <code>usort</code>
+    </p>
+</section>
+
+<!-- ═══════════════════════════════════════════ AGENDA -->
+<section>
+    <h3>¿Qué vemos hoy?</h3>
+    <ol style="font-size:.9em">
+        <li>Arreglos asociativos — profundización</li>
+        <li>Colección de registros (arreglo de arreglos)</li>
+        <li>Funciones: definición, parámetros, retorno</li>
+        <li>Arrow functions y closures</li>
+        <li><code>array_map</code> — transformar</li>
+        <li><code>array_filter</code> — filtrar</li>
+        <li><code>usort</code> — ordenar con criterio propio</li>
+        <li>Pipeline integrador: map → filter → sort</li>
+    </ol>
+</section>
+
+<!-- ═══════════════════════════════════════════ ARREGLOS ASOCIATIVOS -->
+<section>
+    <section>
+        <h3>Arreglos: indexado vs. asociativo</h3>
+        <div class="cols">
+            <div class="col">
+                <p style="font-size:.8em"><span class="badge-gris">Indexado</span> clave numérica automática</p>
+                <pre><code class="language-php" data-trim>
+$cursos = ["PHP", "Laravel", "MySQL"];
+
+echo $cursos[0]; // PHP
+echo $cursos[2]; // MySQL
+                </code></pre>
+            </div>
+            <div class="col">
+                <p style="font-size:.8em"><span class="badge-azul">Asociativo</span> clave string definida por vos</p>
+                <pre><code class="language-php" data-trim>
+$curso = [
+    "nombre"   => "PHP",
+    "duracion" => 40,
+    "activo"   => true,
+];
+
+echo $curso["nombre"];   // PHP
+echo $curso["duracion"]; // 40
+                </code></pre>
+            </div>
+        </div>
+        <div class="tip">
+            En arreglos asociativos la clave describe el dato — como columnas de una tabla
+        </div>
+    </section>
+
+    <section>
+        <h3>Crear, modificar y eliminar claves</h3>
+        <pre><code class="language-php" data-trim>
+$estudiante = [
+    "nombre" => "Ana",
+    "nota"   => 75,
+    "activo" => true,
+];
+
+// Modificar un valor
+$estudiante["nota"] = 88;
+
+// Agregar una clave nueva
+$estudiante["email"] = "ana@correo.com";
+
+// Eliminar una clave
+unset($estudiante["activo"]);
+
+// Verificar existencia
+isset($estudiante["email"]);             // true
+array_key_exists("activo", $estudiante); // false
+        </code></pre>
+    </section>
+
+    <section>
+        <h3>Recorrer con <code>foreach</code></h3>
+        <pre><code class="language-php" data-trim>
+$producto = [
+    "nombre"    => "Notebook",
+    "precio"    => 1200,
+    "categoria" => "tecnología",
+    "stock"     => 15,
+];
+
+// Sin clave
+foreach ($producto as $valor) {
+    echo $valor . "\n";
+}
+
+// Con clave y valor ← más útil
+foreach ($producto as $clave => $valor) {
+    echo "$clave: $valor\n";
+}
+// nombre: Notebook
+// precio: 1200  ...
+        </code></pre>
+    </section>
+
+    <section>
+        <h3>Funciones de inspección</h3>
+        <pre><code class="language-php" data-trim>
+$p = ["nombre" => "Luis", "edad" => 22, "ciudad" => "La Paz"];
+
+array_keys($p);   // ["nombre", "edad", "ciudad"]
+array_values($p); // ["Luis", 22, "La Paz"]
+count($p);        // 3
+        </code></pre>
+        <div class="warning">
+            <strong>isset vs array_key_exists</strong><br>
+            <code>isset()</code> devuelve <code>false</code> si el valor es <code>null</code><br>
+            <code>array_key_exists()</code> devuelve <code>true</code> aunque sea <code>null</code>
+        </div>
+    </section>
+
+    <section>
+        <h3>Colección de registros</h3>
+        <p style="font-size:.85em">Un arreglo donde <strong>cada elemento es un arreglo asociativo</strong>.<br>
+        Representa filas de una tabla o respuestas de una API.</p>
+        <pre><code class="language-php" data-trim>
+$estudiantes = [
+    ["nombre" => "Luis",  "nota" => 75, "curso" => "PHP"],
+    ["nombre" => "Sara",  "nota" => 92, "curso" => "PHP"],
+    ["nombre" => "Pedro", "nota" => 41, "curso" => "Laravel"],
+];
+
+// Acceder a un registro específico
+echo $estudiantes[1]["nombre"]; // Sara
+
+// Recorrer todos
+foreach ($estudiantes as $e) {
+    echo $e["nombre"] . ": " . $e["nota"] . "\n";
+}
+        </code></pre>
+        <div class="success">
+            Este es el patrón que usaremos con <code>array_map</code>, <code>array_filter</code> y <code>usort</code>
+        </div>
+    </section>
+</section>
+
+<!-- ═══════════════════════════════════════════ FUNCIONES -->
+<section>
+    <section>
+        <h3>Funciones</h3>
+        <p style="font-size:.85em">Bloque de código reutilizable que recibe datos y puede devolver un resultado.</p>
+        <pre><code class="language-php" data-trim>
+function nombreDeLaFuncion(tipo $param): tipoRetorno {
+    // cuerpo
+    return $resultado;
+}
+        </code></pre>
+        <pre><code class="language-php" data-trim>
+function saludar(string $nombre, string $saludo = "Hola"): string {
+    return "$saludo, $nombre!";
+}
+
+echo saludar("Ana");             // Hola, Ana!
+echo saludar("Luis", "Buenas"); // Buenas, Luis!
+        </code></pre>
+        <div class="tip">
+            Los parámetros con valor por defecto deben ir <strong>al final</strong> de la lista
+        </div>
+    </section>
+
+    <section>
+        <h3>Tipos declarados (PHP 8)</h3>
+        <pre><code class="language-php" data-trim>
+function calcularPromedio(array $notas, int $decimales = 2): float {
+    if (count($notas) === 0) return 0.0;
+    return round(array_sum($notas) / count($notas), $decimales);
+}
+
+echo calcularPromedio([75, 88, 92]);     // 85.00
+echo calcularPromedio([75, 88, 92], 0); // 85
+        </code></pre>
+        <table style="font-size:.78em; margin-top:.5em">
+            <tr><th>Tipo en parámetro</th><th>Qué acepta</th></tr>
+            <tr><td><code>string</code></td><td>Texto</td></tr>
+            <tr><td><code>int</code></td><td>Entero</td></tr>
+            <tr><td><code>float</code></td><td>Decimal</td></tr>
+            <tr><td><code>bool</code></td><td>true / false</td></tr>
+            <tr><td><code>array</code></td><td>Arreglo</td></tr>
+            <tr><td><code>void</code></td><td>No retorna nada</td></tr>
+        </table>
+    </section>
+
+    <section>
+        <h3>Por valor vs. por referencia</h3>
+        <div class="cols">
+            <div class="col">
+                <p style="font-size:.8em"><span class="badge-gris">Por valor</span> copia — original no cambia</p>
+                <pre><code class="language-php" data-trim>
+function duplicar(int $n): int {
+    $n = $n * 2;
+    return $n;
+}
+
+$x = 5;
+$r = duplicar($x);
+echo $x; // 5  ← no cambió
+echo $r; // 10
+                </code></pre>
+            </div>
+            <div class="col">
+                <p style="font-size:.8em"><span class="badge-azul">Por referencia &amp;</span> original cambia</p>
+                <pre><code class="language-php" data-trim>
+function duplicarRef(int &$n): void {
+    $n = $n * 2;
+}
+
+$x = 5;
+duplicarRef($x);
+echo $x; // 10 ← cambió
+                </code></pre>
+            </div>
+        </div>
+        <div class="warning">Usar referencias con moderación — solo cuando sea la intención explícita</div>
+    </section>
+
+    <section>
+        <h3>Scope — las variables externas no existen dentro</h3>
+        <pre><code class="language-php" data-trim>
+$impuesto = 0.13;
+
+// ✗ MAL — $impuesto no existe dentro de la función
+function precioMal(float $precio): float {
+    return $precio * (1 + $impuesto); // Notice: Undefined variable
+}
+
+// ✓ BIEN — pasar como parámetro
+function precioConImpuesto(float $precio, float $imp = 0.13): float {
+    return round($precio * (1 + $imp), 2);
+}
+
+echo precioConImpuesto(100);       // 113.00
+echo precioConImpuesto(100, 0.16); // 116.00
+        </code></pre>
+    </section>
+
+    <section>
+        <h3>Arrow functions — <code>fn</code></h3>
+        <p style="font-size:.85em">Función anónima de una sola expresión. Captura el scope externo <strong>automáticamente</strong>.</p>
+        <pre><code class="language-php" data-trim>
+// Función anónima (closure)
+$esPar = function(int $n): bool {
+    return $n % 2 === 0;
+};
+
+// Arrow function equivalente (PHP 7.4+)
+$esPar = fn(int $n): bool => $n % 2 === 0;
+
+// Captura variable externa sin "use"
+$minimo = 51;
+$esAprobado = fn(int $nota): bool => $nota >= $minimo;
+
+echo $esAprobado(75); // true
+echo $esAprobado(40); // false
+        </code></pre>
+        <div class="tip">Las arrow functions son ideales para pasar como argumento a <code>array_map</code>, <code>filter</code> y <code>usort</code></div>
+    </section>
+</section>
+
+<!-- ═══════════════════════════════════════════ ARRAY_MAP -->
+<section>
+    <section>
+        <h3><code>array_map</code></h3>
+        <p style="font-size:.85em">Aplica una función a <strong>cada elemento</strong> y retorna un nuevo arreglo.<br>
+        El original <strong>no se modifica</strong>.</p>
+        <pre><code class="language-php" data-trim>
+array_map(callable $fn, array $arr): array
+        </code></pre>
+        <pre><code class="language-php" data-trim>
+$notas = [75, 42, 88, 61, 95];
+
+// Agregar 5 puntos de bonus
+$conBonus = array_map(fn($n) => min($n + 5, 100), $notas);
+// [80, 47, 93, 66, 100]
+
+// Convertir a string
+$etiquetas = array_map(fn($n) => "Nota: $n", $notas);
+// ["Nota: 75", "Nota: 42", ...]
+        </code></pre>
+        <div class="tip">Pensalo como: "quiero otro arreglo con cada elemento <strong>transformado</strong>"</div>
+    </section>
+
+    <section>
+        <h3><code>array_map</code> sobre colección de registros</h3>
+        <pre><code class="language-php" data-trim>
+$estudiantes = [
+    ["nombre" => "Luis",  "nota" => 75],
+    ["nombre" => "Sara",  "nota" => 92],
+    ["nombre" => "Pedro", "nota" => 41],
+];
+
+// Extraer solo los nombres
+$nombres = array_map(fn($e) => $e["nombre"], $estudiantes);
+// ["Luis", "Sara", "Pedro"]
+
+// Agregar campo "estado" calculado
+$conEstado = array_map(function($e) {
+    $e["estado"] = $e["nota"] >= 51 ? "Aprobado" : "Reprobado";
+    return $e;
+}, $estudiantes);
+        </code></pre>
+        <div class="success">El arreglo original sigue igual — <code>$conEstado</code> es uno nuevo</div>
+    </section>
+
+    <section>
+        <h3><code>array_map</code> — dos arreglos en paralelo</h3>
+        <pre><code class="language-php" data-trim>
+$nombres = ["Ana",  "Luis", "Sara"];
+$notas   = [88,     75,     92   ];
+
+$resultados = array_map(
+    fn($nombre, $nota) => "$nombre obtuvo $nota puntos",
+    $nombres,
+    $notas
+);
+
+// ["Ana obtuvo 88 puntos",
+//  "Luis obtuvo 75 puntos",
+//  "Sara obtuvo 92 puntos"]
+        </code></pre>
+        <div class="tip">Cuando se pasan dos arreglos, el callback recibe un elemento de cada uno</div>
+    </section>
+</section>
+
+<!-- ═══════════════════════════════════════════ ARRAY_FILTER -->
+<section>
+    <section>
+        <h3><code>array_filter</code></h3>
+        <p style="font-size:.85em">Retorna un nuevo arreglo con solo los elementos para los que el callback devuelve <code>true</code>.<br>
+        El original <strong>no se modifica</strong>.</p>
+        <pre><code class="language-php" data-trim>
+array_filter(array $arr, callable $fn): array
+        </code></pre>
+        <pre><code class="language-php" data-trim>
+$notas = [75, 42, 88, 61, 95, 50, 73];
+
+$aprobados  = array_filter($notas, fn($n) => $n >= 51);
+// [75, 88, 61, 95, 73]
+
+$reprobados = array_filter($notas, fn($n) => $n < 51);
+// [42, 50]
+        </code></pre>
+        <div class="tip">Pensalo como: "quiero solo los elementos que cumplen <strong>X condición</strong>"</div>
+    </section>
+
+    <section>
+        <h3>⚠️ Las claves originales se preservan</h3>
+        <pre><code class="language-php" data-trim>
+$notas = [75, 42, 88, 61, 95];
+//  idx:  0   1   2   3   4
+
+$filtrado = array_filter($notas, fn($n) => $n >= 70);
+// [0 => 75,  2 => 88,  4 => 95]
+//  ↑ huecos en los índices
+
+// Para reindexar: array_values()
+$reindexado = array_values($filtrado);
+// [0 => 75,  1 => 88,  2 => 95]
+        </code></pre>
+        <div class="warning">
+            Siempre usá <code>array_values()</code> después de <code>array_filter</code>
+            si necesitás índices consecutivos
+        </div>
+    </section>
+
+    <section>
+        <h3><code>array_filter</code> sobre colección de registros</h3>
+        <pre><code class="language-php" data-trim>
+$estudiantes = [
+    ["nombre" => "Luis",   "nota" => 75, "estado" => "activo"],
+    ["nombre" => "Sara",   "nota" => 92, "estado" => "activo"],
+    ["nombre" => "Pedro",  "nota" => 41, "estado" => "activo"],
+    ["nombre" => "Camila", "nota" => 88, "estado" => "inactivo"],
+];
+
+// Solo activos con nota >= 51
+$aprobadosActivos = array_values(array_filter(
+    $estudiantes,
+    fn($e) => $e["estado"] === "activo" && $e["nota"] >= 51
+));
+// Luis (75), Sara (92)
+        </code></pre>
+    </section>
+
+    <section>
+        <h3><code>array_filter</code> sin callback</h3>
+        <p style="font-size:.85em">Si no se pasa callback, elimina los valores <strong>falsy</strong>:</p>
+        <pre><code class="language-php" data-trim>
+// Valores falsy: 0, "", null, false, []
+$mezclado = [0, "PHP", false, 42, null, "", "Laravel"];
+
+$limpio = array_values(array_filter($mezclado));
+// ["PHP", 42, "Laravel"]
+        </code></pre>
+        <div class="tip">Útil para limpiar arreglos que vienen de formularios o APIs</div>
+    </section>
+</section>
+
+<!-- ═══════════════════════════════════════════ USORT -->
+<section>
+    <section>
+        <h3><code>usort</code></h3>
+        <p style="font-size:.85em">Ordena el arreglo usando una función de comparación propia.<br>
+        <strong>Modifica el arreglo original.</strong></p>
+        <pre><code class="language-php" data-trim>
+usort(array &$arr, callable $comparador): bool
+        </code></pre>
+        <p style="font-size:.85em">El comparador recibe <code>$a</code> y <code>$b</code> y debe retornar:</p>
+        <table style="font-size:.8em">
+            <tr><th>Retorno</th><th>Significado</th></tr>
+            <tr><td><code>&lt; 0</code></td><td><code>$a</code> va antes que <code>$b</code></td></tr>
+            <tr><td><code>= 0</code></td><td>Son iguales</td></tr>
+            <tr><td><code>&gt; 0</code></td><td><code>$b</code> va antes que <code>$a</code></td></tr>
+        </table>
+        <div class="tip">Pensalo como: "quiero los mismos elementos pero en <strong>otro orden</strong>"</div>
+    </section>
+
+    <section>
+        <h3>El operador nave espacial <code>&lt;=&gt;</code></h3>
+        <p style="font-size:.85em">Devuelve exactamente <code>-1</code>, <code>0</code> o <code>1</code> según la comparación.</p>
+        <pre><code class="language-php" data-trim>
+1 <=> 2  // -1  (1 va antes)
+2 <=> 2  //  0  (son iguales)
+3 <=> 2  //  1  (2 va antes)
+
+// Ascendente
+usort($arr, fn($a, $b) => $a <=> $b);
+
+// Descendente — solo invertir $a y $b
+usort($arr, fn($a, $b) => $b <=> $a);
+        </code></pre>
+    </section>
+
+    <section>
+        <h3><code>usort</code> — ejemplos prácticos</h3>
+        <pre><code class="language-php" data-trim>
+$estudiantes = [
+    ["nombre" => "Luis",   "nota" => 75],
+    ["nombre" => "Sara",   "nota" => 92],
+    ["nombre" => "Pedro",  "nota" => 41],
+    ["nombre" => "Camila", "nota" => 88],
+];
+
+// Por nota descendente
+usort($estudiantes, fn($a, $b) => $b["nota"] <=> $a["nota"]);
+// Sara (92), Camila (88), Luis (75), Pedro (41)
+
+// Por nombre alfabético
+usort($estudiantes, fn($a, $b) => $a["nombre"] <=> $b["nombre"]);
+// Camila, Luis, Pedro, Sara
+        </code></pre>
+    </section>
+
+    <section>
+        <h3>Criterio compuesto</h3>
+        <p style="font-size:.85em">Si el primer criterio da empate, se aplica el segundo.</p>
+        <pre><code class="language-php" data-trim>
+// Primero por curso (A→Z), luego por nota (mayor→menor)
+usort($estudiantes, function($a, $b) {
+    $porCurso = $a["curso"] <=> $b["curso"];
+    if ($porCurso !== 0) return $porCurso;
+    return $b["nota"] <=> $a["nota"];
+});
+        </code></pre>
+        <div class="warning">
+            <code>usort</code> modifica el original. Si necesitás conservar el orden, copiá el arreglo antes:<br>
+            <code>$copia = $arr; usort($copia, ...);</code>
+        </div>
+    </section>
+</section>
+
+<!-- ═══════════════════════════════════════════ COMPARATIVA -->
+<section>
+    <h3>Las tres funciones — comparativa</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Función</th>
+                <th>Pregunta que responde</th>
+                <th>Modifica original</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>array_map</code></td>
+                <td>"¿Cómo transformo cada elemento?"</td>
+                <td><span class="badge-verde">No</span></td>
+            </tr>
+            <tr>
+                <td><code>array_filter</code></td>
+                <td>"¿Cuáles cumplen la condición?"</td>
+                <td><span class="badge-verde">No</span></td>
+            </tr>
+            <tr>
+                <td><code>usort</code></td>
+                <td>"¿En qué orden los quiero?"</td>
+                <td><span class="badge-rojo">Sí</span></td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="tip" style="margin-top:1em">
+        <code>array_values()</code> después de <code>array_filter</code> para reindexar
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ PIPELINE -->
+<section>
+    <section>
+        <h3>Pipeline: map → filter → sort</h3>
+        <p style="font-size:.85em">El poder real aparece al <strong>encadenar</strong> las tres funciones.</p>
+        <pre><code class="language-php" data-trim>
+// PASO 1 — Enriquecer con datos calculados
+$con_promedio = array_map(function($e) {
+    $e["promedio"] = round(($e["p1"] + $e["p2"] + $e["p3"]) / 3, 1);
+    $e["aprobado"] = $e["promedio"] >= 51;
+    return $e;
+}, $estudiantes);
+
+// PASO 2 — Solo los aprobados
+$aprobados = array_values(array_filter(
+    $con_promedio,
+    fn($e) => $e["aprobado"]
+));
+
+// PASO 3 — Ordenar de mayor a menor
+usort($aprobados, fn($a, $b) => $b["promedio"] <=> $a["promedio"]);
+        </code></pre>
+    </section>
+
+    <section>
+        <h3>Pipeline — visualizado</h3>
+        <div style="font-size:.85em; display:flex; flex-direction:column; gap:.8em; align-items:center">
+            <div style="background:rgba(13,110,253,.2); border:1px solid #0d6efd; border-radius:.5em; padding:.8em 2em; width:80%">
+                <strong><span class="step">1</span>array_map</strong>
+                — agregar campo "promedio" a cada registro<br>
+                <span style="color:#aaa; font-size:.9em">8 estudiantes → 8 estudiantes (con datos nuevos)</span>
+            </div>
+            <div style="font-size:1.5em">↓</div>
+            <div style="background:rgba(255,193,7,.2); border:1px solid #ffc107; border-radius:.5em; padding:.8em 2em; width:80%">
+                <strong><span class="step" style="background:#ffc107;color:#000">2</span>array_filter</strong>
+                — solo los que tienen promedio ≥ 51<br>
+                <span style="color:#aaa; font-size:.9em">8 estudiantes → 5 aprobados</span>
+            </div>
+            <div style="font-size:1.5em">↓</div>
+            <div style="background:rgba(25,135,84,.2); border:1px solid #198754; border-radius:.5em; padding:.8em 2em; width:80%">
+                <strong><span class="step" style="background:#198754">3</span>usort</strong>
+                — de mayor a menor promedio<br>
+                <span style="color:#aaa; font-size:.9em">5 aprobados → 5 aprobados ordenados (ranking)</span>
+            </div>
+        </div>
+    </section>
+</section>
+
+<!-- ═══════════════════════════════════════════ RESUMEN -->
+<section>
+    <h3>Resumen de la clase</h3>
+    <table style="font-size:.72em">
+        <tr><th>Concepto</th><th>Sintaxis clave</th></tr>
+        <tr><td>Arreglo asociativo</td><td><code>["clave" => valor]</code></td></tr>
+        <tr><td>Recorrer asociativo</td><td><code>foreach ($arr as $k => $v)</code></td></tr>
+        <tr><td>Colección de registros</td><td>Arreglo de arreglos asociativos</td></tr>
+        <tr><td>Función con tipos</td><td><code>function f(int $n): float { ... }</code></td></tr>
+        <tr><td>Valor por defecto</td><td><code>function f($n, $d = 10)</code></td></tr>
+        <tr><td>Arrow function</td><td><code>fn($n) => $n * 2</code></td></tr>
+        <tr><td>array_map</td><td><code>array_map(fn($e) => ..., $arr)</code></td></tr>
+        <tr><td>array_filter</td><td><code>array_values(array_filter($arr, fn($e) => ...))</code></td></tr>
+        <tr><td>usort</td><td><code>usort($arr, fn($a, $b) => $b["campo"] &lt;=&gt; $a["campo"])</code></td></tr>
+    </table>
+</section>
+
+<!-- ═══════════════════════════════════════════ EJERCICIOS -->
+<section>
+    <h3>Ejercicios de la clase</h3>
+    <ol style="font-size:.85em">
+        <li><strong>Funciones básicas</strong> — <code>calcularDescuento</code>, <code>clasificarNota</code>, <code>nombreCompleto</code></li>
+        <li><strong>array_map</strong> — transformar precios con IVA, extraer nombres, formatear etiquetas</li>
+        <li><strong>array_filter</strong> — filtrar productos por precio, categoría y condición múltiple</li>
+        <li><strong>usort</strong> — empleados ordenados por salario, nombre y criterio compuesto</li>
+        <li><strong>Pipeline integrador</strong> — map + filter + sort sobre notas de 3 parciales</li>
+    </ol>
+    <p style="font-size:.8em; color:#aaa; margin-top:1em">
+        Ver consignas completas en <code>ejercicios/README.md</code>
+    </p>
+</section>
+
+<!-- ═══════════════════════════════════════════ PRÓXIMA CLASE -->
+<section>
+    <h3>Próxima clase — Clase 8</h3>
+    <p style="font-size:.9em"><strong>Tema 3.5 — Superglobales y formularios PHP</strong></p>
+    <ul style="font-size:.85em">
+        <li><code>$_GET</code>, <code>$_POST</code>, <code>$_REQUEST</code></li>
+        <li>Procesamiento de formularios URL Encoded</li>
+        <li><code>json_encode</code> / <code>json_decode</code></li>
+        <li>Recibir y responder JSON desde PHP</li>
+    </ul>
+    <div class="success" style="margin-top:1em">
+        Con lo aprendido hoy + superglobales ya podés construir endpoints PHP
+        que reciben datos, los procesan con funciones propias y devuelven JSON
+    </div>
+</section>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+<script>
+    Reveal.initialize({
+        hash: true,
+        slideNumber: true,
+        transition: 'slide',
+        plugins: [ RevealHighlight, RevealNotes ]
+    });
+</script>
+</body>
+</html>
