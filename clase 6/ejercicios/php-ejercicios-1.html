@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PHP — Ejercicios de Programación</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #141720;
+    --surface2: #1c2030;
+    --border: #252b3a;
+    --accent: #7c6af7;
+    --accent2: #4ecdc4;
+    --accent3: #f7c948;
+    --accent4: #f76c6c;
+    --accent5: #6cf794;
+    --text: #e2e4ef;
+    --muted: #5c6280;
+    --php: #8892bf;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Noise texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: relative;
+    padding: 60px 40px 40px;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  header::after {
+    content: 'PHP';
+    position: absolute;
+    right: -20px;
+    top: -30px;
+    font-size: 220px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: rgba(124,106,247,0.05);
+    pointer-events: none;
+    line-height: 1;
+  }
+
+  .header-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .header-tag::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 2px;
+    background: var(--accent);
+  }
+
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    color: #fff;
+  }
+
+  h1 span {
+    color: var(--accent);
+  }
+
+  .subtitle {
+    margin-top: 12px;
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 400;
+    font-family: 'JetBrains Mono', monospace;
+    max-width: 500px;
+  }
+
+  .index-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 24px 40px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .index-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 5px 12px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .index-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(124,106,247,0.08);
+  }
+
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 40px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .section {
+    margin-bottom: 70px;
+    scroll-margin-top: 80px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .section-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(124,106,247,0.1);
+    border: 1px solid rgba(124,106,247,0.3);
+    padding: 4px 10px;
+    border-radius: 3px;
+    letter-spacing: 2px;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .concept-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 16px;
+    transition: border-color 0.2s;
+  }
+
+  .concept-card:hover {
+    border-color: rgba(124,106,247,0.3);
+  }
+
+  .concept-card h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-weight: 400;
+    letter-spacing: 1px;
+  }
+
+  .tag-var  { background: rgba(78,205,196,0.12); color: var(--accent2); border: 1px solid rgba(78,205,196,0.25); }
+  .tag-ctrl { background: rgba(247,201,72,0.12); color: var(--accent3); border: 1px solid rgba(247,201,72,0.25); }
+  .tag-loop { background: rgba(108,247,148,0.12); color: var(--accent5); border: 1px solid rgba(108,247,148,0.25); }
+  .tag-func { background: rgba(247,108,108,0.12); color: var(--accent4); border: 1px solid rgba(247,108,108,0.25); }
+
+  .concept-desc {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 16px;
+    font-weight: 400;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  pre {
+    background: #0a0c10;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    position: relative;
+  }
+
+  pre .label {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  .kw  { color: #c792ea; }
+  .str { color: #c3e88d; }
+  .num { color: #f78c6c; }
+  .cmt { color: #546e7a; font-style: italic; }
+  .var { color: #82aaff; }
+  .fn  { color: #82aaff; }
+  .typ { color: #4ecdc4; }
+  .op  { color: #89ddff; }
+  .boo { color: #f76c6c; }
+
+  /* Exercises */
+  .exercise-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+    margin-top: 8px;
+  }
+
+  .exercise {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+
+  .exercise:hover {
+    transform: translateY(-2px);
+    border-color: rgba(124,106,247,0.4);
+  }
+
+  .exercise::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+
+  .exercise.v1::before { background: var(--accent2); }
+  .exercise.v2::before { background: var(--accent3); }
+  .exercise.v3::before { background: var(--accent5); }
+  .exercise.v4::before { background: var(--accent4); }
+  .exercise.v5::before { background: var(--accent); }
+
+  .ex-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+  }
+
+  .exercise h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 10px;
+    line-height: 1.3;
+  }
+
+  .exercise p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+
+  .exercise ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .exercise ul li {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #8b93b8;
+    padding-left: 16px;
+    position: relative;
+    line-height: 1.5;
+  }
+
+  .exercise ul li::before {
+    content: '▸';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-size: 10px;
+  }
+
+  .difficulty {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    margin-top: 14px;
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  .easy   { background: rgba(108,247,148,0.1); color: var(--accent5); }
+  .medium { background: rgba(247,201,72,0.1);  color: var(--accent3); }
+  .hard   { background: rgba(247,108,108,0.1); color: var(--accent4); }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 60px 0;
+  }
+
+  footer {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 640px) {
+    header, main { padding-left: 20px; padding-right: 20px; }
+    .index-bar { padding: 16px 20px; }
+    .exercise-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-tag">Programación Web</div>
+  <h1>Fundamentos de <span>PHP</span></h1>
+  <p class="subtitle">// Guía práctica de ejercicios para estudiantes — variables, estructuras de control y más</p>
+</header>
+
+<nav class="index-bar">
+  <a class="index-btn" href="#variables">01 · Variables</a>
+  <a class="index-btn" href="#tipos">02 · Tipos de Datos</a>
+  <a class="index-btn" href="#if">03 · if / else</a>
+  <a class="index-btn" href="#switch">04 · switch</a>
+  <a class="index-btn" href="#for">05 · for</a>
+  <a class="index-btn" href="#while">06 · while</a>
+  <a class="index-btn" href="#foreach">07 · foreach</a>
+  <a class="index-btn" href="#funciones">08 · Funciones</a>
+  <a class="index-btn" href="#ejercicios">09 · Ejercicios</a>
+</nav>
+
+<main>
+
+  <!-- SECCIÓN 1: VARIABLES -->
+  <section class="section" id="variables">
+    <div class="section-header">
+      <span class="section-number">01</span>
+      <h2 class="section-title">Declaración de Variables</h2>
+    </div>
+
+    <div class="concept-card">
+      <h3>¿Qué es una variable? <span class="tag tag-var">VAR</span></h3>
+      <p class="concept-desc">
+        Una variable es un espacio en memoria donde guardamos información temporal. En PHP todas las variables empiezan con el símbolo <code style="color:var(--accent2)">$</code>. No necesitas declarar el tipo — PHP lo detecta automáticamente.
+      </p>
+      <pre><span class="label">ejemplo.php</span><span class="cmt">// Declarar variables en PHP</span>
+<span class="var">$nombre</span>   <span class="op">=</span> <span class="str">"Ana García"</span><span class="op">;</span>      <span class="cmt">// string (texto)</span>
+<span class="var">$edad</span>     <span class="op">=</span> <span class="num">22</span><span class="op">;</span>             <span class="cmt">// integer (entero)</span>
+<span class="var">$precio</span>   <span class="op">=</span> <span class="num">19.99</span><span class="op">;</span>          <span class="cmt">// float (decimal)</span>
+<span class="var">$activo</span>   <span class="op">=</span> <span class="boo">true</span><span class="op">;</span>           <span class="cmt">// boolean (true/false)</span>
+<span class="var">$nulo</span>     <span class="op">=</span> <span class="kw">null</span><span class="op">;</span>           <span class="cmt">// null (sin valor)</span>
+
+<span class="cmt">// Mostrar variables</span>
+<span class="kw">echo</span> <span class="str">"Hola, "</span> <span class="op">.</span> <span class="var">$nombre</span><span class="op">;</span>
+<span class="fn">var_dump</span><span class="op">(</span><span class="var">$edad</span><span class="op">);</span>             <span class="cmt">// muestra tipo y valor</span></pre>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 2: TIPOS -->
+  <section class="section" id="tipos">
+    <div class="section-header">
+      <span class="section-number">02</span>
+      <h2 class="section-title">Tipos de Datos</h2>
+    </div>
+
+    <div class="concept-card">
+      <h3>String <span class="tag tag-var">TEXTO</span></h3>
+      <p class="concept-desc">Cadena de caracteres. Puede usarse con comillas simples o dobles. Las dobles permiten interpolar variables.</p>
+      <pre><span class="var">$producto</span> <span class="op">=</span> <span class="str">"Mini hamburguesa"</span><span class="op">;</span>
+<span class="var">$precio</span>   <span class="op">=</span> <span class="num">35</span><span class="op">;</span>
+
+<span class="cmt">// Interpolación con comillas dobles</span>
+<span class="kw">echo</span> <span class="str">"<span class="var">$producto</span> cuesta $<span class="var">$precio</span>"</span><span class="op">;</span>
+<span class="cmt">// → Mini hamburguesa cuesta $35</span>
+
+<span class="cmt">// Funciones útiles de string</span>
+<span class="kw">echo</span> <span class="fn">strlen</span><span class="op">(</span><span class="var">$producto</span><span class="op">);</span>       <span class="cmt">// longitud: 16</span>
+<span class="kw">echo</span> <span class="fn">strtoupper</span><span class="op">(</span><span class="var">$producto</span><span class="op">);</span>   <span class="cmt">// MINI HAMBURGUESA</span>
+<span class="kw">echo</span> <span class="fn">str_replace</span><span class="op">(</span><span class="str">"Mini"</span><span class="op">,</span> <span class="str">"Mega"</span><span class="op">,</span> <span class="var">$producto</span><span class="op">);</span></pre>
+    </div>
+
+    <div class="concept-card">
+      <h3>Integer y Float <span class="tag tag-var">NÚMERO</span></h3>
+      <p class="concept-desc">Integer es número entero. Float es número decimal. PHP hace conversiones automáticas entre ellos.</p>
+      <pre><span class="var">$unidades</span>  <span class="op">=</span> <span class="num">5</span><span class="op">;</span>           <span class="cmt">// int</span>
+<span class="var">$precio</span>    <span class="op">=</span> <span class="num">12.50</span><span class="op">;</span>       <span class="cmt">// float</span>
+<span class="var">$total</span>     <span class="op">=</span> <span class="var">$unidades</span> <span class="op">*</span> <span class="var">$precio</span><span class="op">;</span>  <span class="cmt">// 62.5 (float)</span>
+
+<span class="kw">echo</span> <span class="fn">number_format</span><span class="op">(</span><span class="var">$total</span><span class="op">,</span> <span class="num">2</span><span class="op">);</span>  <span class="cmt">// "62.50"</span>
+<span class="kw">echo</span> <span class="fn">intval</span><span class="op">(</span><span class="var">$precio</span><span class="op">);</span>          <span class="cmt">// 12 (trunca decimales)</span></pre>
+    </div>
+
+    <div class="concept-card">
+      <h3>Array <span class="tag tag-var">ARREGLO</span></h3>
+      <p class="concept-desc">Colección de valores. Puede ser indexado (numérico) o asociativo (clave => valor). Muy usado en PHP.</p>
+      <pre><span class="cmt">// Array indexado</span>
+<span class="var">$colores</span> <span class="op">=</span> <span class="op">[</span><span class="str">"rojo"</span><span class="op">,</span> <span class="str">"verde"</span><span class="op">,</span> <span class="str">"azul"</span><span class="op">];</span>
+<span class="kw">echo</span> <span class="var">$colores</span><span class="op">[</span><span class="num">0</span><span class="op">];</span>   <span class="cmt">// rojo</span>
+
+<span class="cmt">// Array asociativo</span>
+<span class="var">$alumno</span> <span class="op">=</span> <span class="op">[</span>
+    <span class="str">"nombre"</span>  <span class="op">=></span> <span class="str">"Carlos"</span><span class="op">,</span>
+    <span class="str">"carrera"</span> <span class="op">=></span> <span class="str">"Sistemas"</span><span class="op">,</span>
+    <span class="str">"nota"</span>    <span class="op">=></span> <span class="num">85</span>
+<span class="op">];</span>
+<span class="kw">echo</span> <span class="var">$alumno</span><span class="op">[</span><span class="str">"nombre"</span><span class="op">];</span>   <span class="cmt">// Carlos</span></pre>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 3: IF/ELSE -->
+  <section class="section" id="if">
+    <div class="section-header">
+      <span class="section-number">03</span>
+      <h2 class="section-title">Estructura if / else / elseif</h2>
+    </div>
+
+    <div class="concept-card">
+      <h3>¿Para qué sirve? <span class="tag tag-ctrl">CONTROL</span></h3>
+      <p class="concept-desc">
+        Permite tomar decisiones en el código. "Si se cumple esta condición, haz X; si no, haz Y." Es la estructura más fundamental de cualquier programa.
+      </p>
+      <pre><span class="var">$nota</span> <span class="op">=</span> <span class="num">72</span><span class="op">;</span>
+
+<span class="kw">if</span> <span class="op">(</span><span class="var">$nota</span> <span class="op">>=</span> <span class="num">90</span><span class="op">) {</span>
+    <span class="kw">echo</span> <span class="str">"Excelente 🏆"</span><span class="op">;</span>
+<span class="op">}</span> <span class="kw">elseif</span> <span class="op">(</span><span class="var">$nota</span> <span class="op">>=</span> <span class="num">70</span><span class="op">) {</span>
+    <span class="kw">echo</span> <span class="str">"Aprobado ✅"</span><span class="op">;</span>
+<span class="op">}</span> <span class="kw">elseif</span> <span class="op">(</span><span class="var">$nota</span> <span class="op">>=</span> <span class="num">60</span><span class="op">) {</span>
+    <span class="kw">echo</span> <span class="str">"En recuperación ⚠️"</span><span class="op">;</span>
+<span class="op">}</span> <span class="kw">else</span> <span class="op">{</span>
+    <span class="kw">echo</span> <span class="str">"Reprobado ❌"</span><span class="op">;</span>
+<span class="op">}</span>
+<span class="cmt">// → Aprobado ✅</span>
+
+<span class="cmt">// Operador ternario (versión corta)</span>
+<span class="var">$estado</span> <span class="op">=</span> <span class="var">$nota</span> <span class="op">>=</span> <span class="num">70</span> <span class="op">?</span> <span class="str">"Aprobado"</span> <span class="op">:</span> <span class="str">"Reprobado"</span><span class="op">;</span></pre>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 4: SWITCH -->
+  <section class="section" id="switch">
+    <div class="section-header">
+      <span class="section-number">04</span>
+      <h2 class="section-title">Estructura switch</h2>
+    </div>
+
+    <div class="concept-card">
+      <h3>¿Para qué sirve? <span class="tag tag-ctrl">CONTROL</span></h3>
+      <p class="concept-desc">Ideal cuando una variable puede tomar muchos valores distintos. Más legible que múltiples if/elseif encadenados cuando los casos son exactos.</p>
+      <pre><span class="var">$dia</span> <span class="op">=</span> <span class="str">"lunes"</span><span class="op">;</span>
+
+<span class="kw">switch</span> <span class="op">(</span><span class="var">$dia</span><span class="op">) {</span>
+    <span class="kw">case</span> <span class="str">"lunes"</span><span class="op">:</span>
+    <span class="kw">case</span> <span class="str">"martes"</span><span class="op">:</span>
+    <span class="kw">case</span> <span class="str">"miércoles"</span><span class="op">:</span>
+        <span class="kw">echo</span> <span class="str">"Inicio de semana"</span><span class="op">;</span>
+        <span class="kw">break</span><span class="op">;</span>
+    <span class="kw">case</span> <span class="str">"jueves"</span><span class="op">:</span>
+    <span class="kw">case</span> <span class="str">"viernes"</span><span class="op">:</span>
+        <span class="kw">echo</span> <span class="str">"Ya casi es fin de semana"</span><span class="op">;</span>
+        <span class="kw">break</span><span class="op">;</span>
+    <span class="kw">case</span> <span class="str">"sábado"</span><span class="op">:</span>
+    <span class="kw">case</span> <span class="str">"domingo"</span><span class="op">:</span>
+        <span class="kw">echo</span> <span class="str">"¡Fin de semana! 🎉"</span><span class="op">;</span>
+        <span class="kw">break</span><span class="op">;</span>
+    <span class="kw">default</span><span class="op">:</span>
+        <span class="kw">echo</span> <span class="str">"Día no reconocido"</span><span class="op">;</span>
+<span class="op">}</span></pre>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 5: FOR -->
+  <section class="section" id="for">
+    <div class="section-header">
+      <span class="section-number">05</span>
+      <h2 class="section-title">Bucle for</h2>
+    </div>
+
+    <div class="concept-card">
+      <h3>¿Para qué sirve? <span class="tag tag-loop">BUCLE</span></h3>
+      <p class="concept-desc">Repite un bloque de código un número conocido de veces. Tiene tres partes: inicio, condición, e incremento.</p>
+      <pre><span class="cmt">// Contar del 1 al 5</span>
+<span class="kw">for</span> <span class="op">(</span><span class="var">$i</span> <span class="op">=</span> <span class="num">1</span><span class="op">;</span> <span class="var">$i</span> <span class="op"><=</span> <span class="num">5</span><span class="op">;</span> <span class="var">$i</span><span class="op">++) {</span>
+    <span class="kw">echo</span> <span class="str">"Iteración: <span class="var">$i</span>\n"</span><span class="op">;</span>
+<span class="op">}</span>
+
+<span class="cmt">// Tabla de multiplicar del 3</span>
+<span class="kw">for</span> <span class="op">(</span><span class="var">$n</span> <span class="op">=</span> <span class="num">1</span><span class="op">;</span> <span class="var">$n</span> <span class="op"><=</span> <span class="num">10</span><span class="op">;</span> <span class="var">$n</span><span class="op">++) {</span>
+    <span class="kw">echo</span> <span class="str">"3 x <span class="var">$n</span> = "</span> <span class="op">.</span> <span class="op">(</span><span class="num">3</span> <span class="op">*</span> <span class="var">$n</span><span class="op">) .</span> <span class="str">"\n"</span><span class="op">;</span>
+<span class="op">}</span>
+
+<span class="cmt">// Recorrer array con índice</span>
+<span class="var">$frutas</span> <span class="op">=</span> <span class="op">[</span><span class="str">"mango"</span><span class="op">,</span> <span class="str">"piña"</span><span class="op">,</span> <span class="str">"papaya"</span><span class="op">];</span>
+<span class="kw">for</span> <span class="op">(</span><span class="var">$i</span> <span class="op">=</span> <span class="num">0</span><span class="op">;</span> <span class="var">$i</span> <span class="op"><</span> <span class="fn">count</span><span class="op">(</span><span class="var">$frutas</span><span class="op">);</span> <span class="var">$i</span><span class="op">++) {</span>
+    <span class="kw">echo</span> <span class="var">$frutas</span><span class="op">[</span><span class="var">$i</span><span class="op">] .</span> <span class="str">"\n"</span><span class="op">;</span>
+<span class="op">}</span></pre>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 6: WHILE -->
+  <section class="section" id="while">
+    <div class="section-header">
+      <span class="section-number">06</span>
+      <h2 class="section-title">Bucle while / do-while</h2>
+    </div>
+
+    <div class="concept-card">
+      <h3>¿Para qué sirve? <span class="tag tag-loop">BUCLE</span></h3>
+      <p class="concept-desc">Repite mientras una condición sea verdadera. Útil cuando no sabes cuántas veces se va a repetir. <strong>do-while</strong> garantiza al menos una ejecución.</p>
+      <pre><span class="cmt">// while: suma hasta llegar a 100</span>
+<span class="var">$suma</span>    <span class="op">=</span> <span class="num">0</span><span class="op">;</span>
+<span class="var">$numero</span>  <span class="op">=</span> <span class="num">1</span><span class="op">;</span>
+
+<span class="kw">while</span> <span class="op">(</span><span class="var">$suma</span> <span class="op"><</span> <span class="num">100</span><span class="op">) {</span>
+    <span class="var">$suma</span> <span class="op">+=</span> <span class="var">$numero</span><span class="op">;</span>
+    <span class="var">$numero</span><span class="op">++;</span>
+<span class="op">}</span>
+<span class="kw">echo</span> <span class="str">"Suma: <span class="var">$suma</span>, números usados: <span class="var">$numero</span>"</span><span class="op">;</span>
+
+<span class="cmt">// do-while: siempre ejecuta al menos una vez</span>
+<span class="var">$intentos</span> <span class="op">=</span> <span class="num">0</span><span class="op">;</span>
+<span class="kw">do</span> <span class="op">{</span>
+    <span class="kw">echo</span> <span class="str">"Intento número: <span class="var">$intentos</span>\n"</span><span class="op">;</span>
+    <span class="var">$intentos</span><span class="op">++;</span>
+<span class="op">}</span> <span class="kw">while</span> <span class="op">(</span><span class="var">$intentos</span> <span class="op"><</span> <span class="num">3</span><span class="op">);</span></pre>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 7: FOREACH -->
+  <section class="section" id="foreach">
+    <div class="section-header">
+      <span class="section-number">07</span>
+      <h2 class="section-title">Bucle foreach</h2>
+    </div>
+
+    <div class="concept-card">
+      <h3>¿Para qué sirve? <span class="tag tag-loop">BUCLE</span></h3>
+      <p class="concept-desc">Diseñado específicamente para recorrer arrays. Más limpio y seguro que usar un for con índices. El más usado en PHP para trabajar con listas y datos.</p>
+      <pre><span class="cmt">// Array indexado</span>
+<span class="var">$platillos</span> <span class="op">=</span> <span class="op">[</span><span class="str">"hamburguesa"</span><span class="op">,</span> <span class="str">"popcorn"</span><span class="op">,</span> <span class="str">"papas"</span><span class="op">];</span>
+
+<span class="kw">foreach</span> <span class="op">(</span><span class="var">$platillos</span> <span class="kw">as</span> <span class="var">$item</span><span class="op">) {</span>
+    <span class="kw">echo</span> <span class="str">"🍔 <span class="var">$item</span>\n"</span><span class="op">;</span>
+<span class="op">}</span>
+
+<span class="cmt">// Array asociativo: clave => valor</span>
+<span class="var">$precios</span> <span class="op">=</span> <span class="op">[</span>
+    <span class="str">"hamburguesa"</span> <span class="op">=></span> <span class="num">45</span><span class="op">,</span>
+    <span class="str">"popcorn"</span>     <span class="op">=></span> <span class="num">30</span><span class="op">,</span>
+    <span class="str">"refresco"</span>    <span class="op">=></span> <span class="num">20</span>
+<span class="op">];</span>
+
+<span class="kw">foreach</span> <span class="op">(</span><span class="var">$precios</span> <span class="kw">as</span> <span class="var">$producto</span> <span class="op">=></span> <span class="var">$precio</span><span class="op">) {</span>
+    <span class="kw">echo</span> <span class="str">"<span class="var">$producto</span>: $<span class="var">$precio</span>\n"</span><span class="op">;</span>
+<span class="op">}</span></pre>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 8: FUNCIONES -->
+  <section class="section" id="funciones">
+    <div class="section-header">
+      <span class="section-number">08</span>
+      <h2 class="section-title">Funciones</h2>
+    </div>
+
+    <div class="concept-card">
+      <h3>¿Para qué sirve? <span class="tag tag-func">FUNCIÓN</span></h3>
+      <p class="concept-desc">Agrupa un bloque de código reutilizable bajo un nombre. Evita repetir código. Puede recibir parámetros y retornar un resultado.</p>
+      <pre><span class="cmt">// Declarar una función</span>
+<span class="kw">function</span> <span class="fn">calcularDescuento</span><span class="op">(</span><span class="var">$precio</span><span class="op">,</span> <span class="var">$porcentaje</span><span class="op">) {</span>
+    <span class="var">$descuento</span> <span class="op">=</span> <span class="var">$precio</span> <span class="op">*</span> <span class="op">(</span><span class="var">$porcentaje</span> <span class="op">/</span> <span class="num">100</span><span class="op">);</span>
+    <span class="kw">return</span> <span class="var">$precio</span> <span class="op">-</span> <span class="var">$descuento</span><span class="op">;</span>
+<span class="op">}</span>
+
+<span class="cmt">// Llamar la función</span>
+<span class="var">$precioFinal</span> <span class="op">=</span> <span class="fn">calcularDescuento</span><span class="op">(</span><span class="num">100</span><span class="op">,</span> <span class="num">20</span><span class="op">);</span>  <span class="cmt">// 80</span>
+<span class="kw">echo</span> <span class="str">"Precio con descuento: $<span class="var">$precioFinal</span>"</span><span class="op">;</span>
+
+<span class="cmt">// Parámetros con valor por defecto</span>
+<span class="kw">function</span> <span class="fn">saludar</span><span class="op">(</span><span class="var">$nombre</span><span class="op">,</span> <span class="var">$saludo</span> <span class="op">=</span> <span class="str">"Hola"</span><span class="op">) {</span>
+    <span class="kw">echo</span> <span class="str">"<span class="var">$saludo</span>, <span class="var">$nombre</span>!"</span><span class="op">;</span>
+<span class="op">}</span>
+
+<span class="fn">saludar</span><span class="op">(</span><span class="str">"María"</span><span class="op">);</span>            <span class="cmt">// Hola, María!</span>
+<span class="fn">saludar</span><span class="op">(</span><span class="str">"Luis"</span><span class="op">,</span> <span class="str">"Buenos días"</span><span class="op">);</span>  <span class="cmt">// Buenos días, Luis!</span></pre>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- SECCIÓN 9: EJERCICIOS -->
+  <section class="section" id="ejercicios">
+    <div class="section-header">
+      <span class="section-number">09</span>
+      <h2 class="section-title">Ejercicios Prácticos</h2>
+    </div>
+
+    <div class="exercise-grid">
+
+      <div class="exercise v1">
+        <div class="ex-num">EJ-01 · VARIABLES</div>
+        <h4>Mi Perfil de Estudiante</h4>
+        <p>Crea un script PHP que almacene y muestre tu información personal.</p>
+        <ul>
+          <li>Declara variables: nombre, edad, carrera, promedio</li>
+          <li>Usa los 4 tipos básicos: string, int, float, bool</li>
+          <li>Muestra todo con <code>echo</code> en una oración coherente</li>
+          <li>Usa <code>var_dump()</code> en al menos una variable</li>
+        </ul>
+        <span class="difficulty easy">● Fácil</span>
+      </div>
+
+      <div class="exercise v2">
+        <div class="ex-num">EJ-02 · IF/ELSE</div>
+        <h4>Clasificador de Notas</h4>
+        <p>Dado un número de nota (0-100), muestra la calificación en letra.</p>
+        <ul>
+          <li>90-100 → "A — Excelente"</li>
+          <li>80-89 → "B — Muy bueno"</li>
+          <li>70-79 → "C — Bueno"</li>
+          <li>60-69 → "D — Suficiente"</li>
+          <li>0-59 → "F — Reprobado"</li>
+        </ul>
+        <span class="difficulty easy">● Fácil</span>
+      </div>
+
+      <div class="exercise v3">
+        <div class="ex-num">EJ-03 · SWITCH</div>
+        <h4>Menú de Cafetería</h4>
+        <p>Simula un sistema de pedidos con switch.</p>
+        <ul>
+          <li>Variable <code>$opcion</code> con valor 1-5</li>
+          <li>Cada opción muestra un platillo y su precio</li>
+          <li>Incluye un caso <code>default</code> para opción inválida</li>
+          <li>Agrega un mensaje de bienvenida antes del switch</li>
+        </ul>
+        <span class="difficulty easy">● Fácil</span>
+      </div>
+
+      <div class="exercise v4">
+        <div class="ex-num">EJ-04.1 · MATCH</div>
+        <h4>Menú de Cafetería (con match)</h4>
+        <p>Reescribe el ejercicio 03 usando la expresión <code>match</code> de PHP 8.</p>
+        <ul>
+          <li>Usa la misma variable <code>$opcion</code> con valor 1-5</li>
+          <li>Reemplaza el <code>switch</code> por una expresión <code>match</code></li>
+          <li>Guarda el resultado en <code>$pedido</code> y muéstralo con <code>echo</code></li>
+          <li>Maneja la opción inválida con el brazo <code>default</code> de <code>match</code></li>
+          <li><strong>Bonus:</strong> prueba qué pasa si no hay <code>default</code> y la opción no existe</li>
+        </ul>
+        <span class="difficulty easy">● Fácil</span>
+      </div>
+
+      <div class="exercise v5">
+        <div class="ex-num">EJ-04 · FOR</div>
+        <h4>Tabla de Multiplicar</h4>
+        <p>Genera tablas de multiplicar con formato HTML.</p>
+        <ul>
+          <li>Usa un <code>for</code> del 1 al 10</li>
+          <li>Muestra la tabla en una tabla HTML con <code>echo</code></li>
+          <li>Añade un color diferente a las filas pares (con if dentro del for)</li>
+          <li>Incluye el encabezado "Tabla del [número]"</li>
+        </ul>
+        <span class="difficulty medium">● Medio</span>
+      </div>
+
+      <div class="exercise v5">
+        <div class="ex-num">EJ-05 · WHILE</div>
+        <h4>Adivina el Número (Simulado)</h4>
+        <p>Simula intentos de adivinar un número usando while.</p>
+        <ul>
+          <li>Define <code>$secreto = 7</code> y un array de intentos</li>
+          <li>Recorre los intentos con while hasta acertar</li>
+          <li>Muestra "Muy alto", "Muy bajo" o "¡Correcto!"</li>
+          <li>Cuenta y muestra cuántos intentos se usaron</li>
+        </ul>
+        <span class="difficulty medium">● Medio</span>
+      </div>
+
+      <div class="exercise v1">
+        <div class="ex-num">EJ-06 · FOREACH</div>
+        <h4>Inventario de Tienda</h4>
+        <p>Recorre un array de productos y calcula el total.</p>
+        <ul>
+          <li>Crea un array asociativo de 5 productos con precio</li>
+          <li>Usa <code>foreach</code> para mostrar cada uno</li>
+          <li>Calcula e imprime el total del inventario</li>
+          <li>Resalta con un asterisco los que cuesten más de $50</li>
+        </ul>
+        <span class="difficulty easy">● Fácil</span>
+      </div>
+
+      <div class="exercise v2">
+        <div class="ex-num">EJ-07 · FUNCIONES</div>
+        <h4>Calculadora de Propinas</h4>
+        <p>Crea funciones para calcular propinas en un restaurante.</p>
+        <ul>
+          <li>Función <code>calcularPropina($total, $porcentaje)</code></li>
+          <li>Función <code>calcularTotal($subtotal, $impuesto)</code></li>
+          <li>Llama ambas funciones con distintos valores</li>
+          <li>Muestra el resumen: subtotal, impuesto, propina, gran total</li>
+        </ul>
+        <span class="difficulty medium">● Medio</span>
+      </div>
+
+      <div class="exercise v3">
+        <div class="ex-num">EJ-08 · INTEGRADOR</div>
+        <h4>Sistema de Calificaciones</h4>
+        <p>Combina todo lo aprendido en un solo script.</p>
+        <ul>
+          <li>Array de 5 alumnos con nombre y 3 calificaciones</li>
+          <li>Foreach para recorrer alumnos, for para recorrer notas</li>
+          <li>Función que calcula el promedio de un alumno</li>
+          <li>If/else para mostrar si pasó o reprobó</li>
+          <li>Al final, muestra al alumno con el mayor promedio</li>
+        </ul>
+        <span class="difficulty hard">● Difícil</span>
+      </div>
+
+      <div class="exercise v4">
+        <div class="ex-num">EJ-09 · RETO</div>
+        <h4>Generador de Recibo HTML</h4>
+        <p>Genera un recibo de compra completo en HTML usando PHP.</p>
+        <ul>
+          <li>Array de productos con nombre, cantidad y precio unitario</li>
+          <li>Foreach para generar filas de una tabla HTML</li>
+          <li>Calcula subtotal, IVA (16%) y total con funciones</li>
+          <li>If para marcar en rojo productos con precio > $100</li>
+          <li>Muestra fecha/hora con <code>date()</code></li>
+        </ul>
+        <span class="difficulty hard">● Difícil</span>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  &lt;?php echo "Hecho para mis alumnos con 💜"; ?&gt; &nbsp;·&nbsp; PHP Fundamentos
+</footer>
+
+</body>
+</html>
